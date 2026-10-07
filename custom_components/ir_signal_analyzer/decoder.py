@@ -232,6 +232,28 @@ def decode_tcl112ac(pulses: list[int]) -> DecodeResult:
         )
 
     message_type = values[3] & 0x03
+    checksum_offset = 0x0F if values[3] == 0x02 else 0
+    expected_checksum = (sum(values[:-1]) + checksum_offset) & 0xFF
+    checksum_valid = values[-1] == expected_checksum
+    data_hex = "0x" + "".join(f"{value:02X}" for value in values)
+    common = {
+        "bit_count": 112,
+        "data_hex": data_hex,
+        "bytes_hex": [f"0x{value:02X}" for value in values],
+        "manufacturer": "TCL",
+        "device_type": "air_conditioner",
+        "model_family": "TCL112AC",
+        "message_type": {1: "normal", 2: "special"}.get(message_type, "unknown"),
+        "message_type_code": message_type,
+        "checksum": f"0x{values[-1]:02X}",
+        "expected_checksum": f"0x{expected_checksum:02X}",
+        "checksum_valid": checksum_valid,
+    }
+
+    if message_type == 2:
+        special = _decode_tcl112ac_special(values)
+        return DecodeResult("tcl112ac", "decoded", {**common, **special})
+
     power = bool(values[5] & 0x04)
     mode_code = values[6] & 0x0F
     fan_code = values[8] & 0x07
@@ -245,10 +267,10 @@ def decode_tcl112ac(pulses: list[int]) -> DecodeResult:
     )
     fan_mode = {
         0: "auto",
-        1: "quiet",
-        2: "low",
-        3: "medium",
-        5: "high",
+        1: "quiet_sleep",
+        2: "low_steps_0_1",
+        3: "medium_steps_2_3",
+        5: "high_steps_4_5",
     }.get(fan_code, "unknown")
     swing_vertical = {
         0: "off",
@@ -259,28 +281,19 @@ def decode_tcl112ac(pulses: list[int]) -> DecodeResult:
         5: "lowest",
         7: "swing",
     }.get(swing_vertical_code, "unknown")
-    checksum_offset = 0x0F if values[3] == 0x02 else 0
-    expected_checksum = (sum(values[:-1]) + checksum_offset) & 0xFF
-    checksum_valid = values[-1] == expected_checksum
-    data_hex = "0x" + "".join(f"{value:02X}" for value in values)
+    feature_flag_0x40 = bool(values[6] & 0x40)
 
     if not power:
         summary = "Power off"
     else:
-        summary = f"{mode.title()} {temperature:g} C / {fan_mode.title()} fan"
+        fan_summary = fan_mode.replace("_", " ").title()
+        summary = f"{mode.title()} {temperature:g} C / {fan_summary}"
 
     return DecodeResult(
         "tcl112ac",
         "decoded",
         {
-            "bit_count": 112,
-            "data_hex": data_hex,
-            "bytes_hex": [f"0x{value:02X}" for value in values],
-            "manufacturer": "TCL",
-            "device_type": "air_conditioner",
-            "model_family": "TCL112AC",
-            "message_type": "normal" if message_type == 1 else "special",
-            "message_type_code": message_type,
+            **common,
             "power": power,
             "mode": mode,
             "mode_code": mode_code,
@@ -291,15 +304,63 @@ def decode_tcl112ac(pulses: list[int]) -> DecodeResult:
             "swing_vertical_code": swing_vertical_code,
             "swing_horizontal": bool(values[12] & 0x08),
             "health": bool(values[6] & 0x10),
-            "turbo": bool(values[6] & 0x20),
+            "feature_flag_0x40": feature_flag_0x40,
             "econo": bool(values[5] & 0x80),
             "display_light": not bool(values[5] & 0x40),
-            "checksum": f"0x{values[-1]:02X}",
-            "expected_checksum": f"0x{expected_checksum:02X}",
-            "checksum_valid": checksum_valid,
             "summary": summary,
         },
     )
+
+
+def _decode_tcl112ac_special(values: list[int]) -> dict[str, Any]:
+    """Describe a TCL type-2 command frame without treating it as power-off."""
+    special_bytes = f"{values[5]:02X}{values[6]:02X}{values[7]:02X}"
+    observed_command = {
+        "40D090": "soft_wind_horizontal_swing",
+        "40C090": "fan_step_5_horizontal_swing",
+        "40C000": "fan_step_5_or_turbo",
+        "402000": "fan_auto",
+        "604000": "fan_step_0_quiet",
+        "404000": "fan_step_1",
+        "406000": "fan_step_2",
+        "408000": "fan_step_3",
+        "40A000": "fan_step_4",
+        "40A008": "fan_step_4_vertical_swing",
+        "40C008": "sleep_display_off_vertical_swing",
+    }.get(special_bytes)
+    parameter = values[6] & 0xF0
+    if values[5] == 0x60 and parameter == 0x40:
+        fan_request = "quiet_step_0"
+    else:
+        fan_request = {
+            0x20: "auto",
+            0x40: "step_1",
+            0x60: "step_2",
+            0x80: "step_3",
+            0xA0: "step_4",
+            0xC0: "step_5_or_feature",
+            0xD0: "soft_wind",
+        }.get(parameter, "unknown")
+
+    vertical_swing = bool(values[7] & 0x08)
+    horizontal_swing = (values[7] & 0x90) == 0x90
+    parts = [
+        (observed_command or f"fan request {fan_request}").replace("_", " ")
+    ]
+    if vertical_swing:
+        parts.append("vertical swing")
+    if horizontal_swing:
+        parts.append("horizontal swing")
+
+    return {
+        "special_command": True,
+        "special_bytes_hex": f"0x{special_bytes}",
+        "observed_command": observed_command,
+        "fan_request": fan_request,
+        "vertical_swing_request": vertical_swing,
+        "horizontal_swing_request": horizontal_swing,
+        "summary": "Special command / " + " / ".join(parts),
+    }
 
 
 DECODERS: dict[str, Callable[[list[int]], DecodeResult]] = {

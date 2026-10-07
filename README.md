@@ -211,6 +211,10 @@ content: |-
   health, turbo, economy, display-light, and checksum fields. Its primary
   fingerprint hashes the decoded 14-byte state, so identical settings remain
   stable across timing jitter while 24.0 C and 24.5 C remain distinct.
+- Observed remotes send a type-2 command frame followed by a type-1 full-state
+  frame. The integration links pairs received within 1.5 seconds and exposes an
+  ordered two-frame `replay_sequence`. Reusable captures and field notes are in
+  `reference/tcl112ac-observations.json` and `reference/TCL112AC.md`.
 
 The XIAO IR Mate receiver is a demodulating receiver intended mainly for 38 kHz
 IR. It cannot truly capture every carrier frequency. Long air-conditioner frames

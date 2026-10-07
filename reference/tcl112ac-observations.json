@@ -1,0 +1,82 @@
+{
+  "protocol": "TCL112AC",
+  "signature": "23CB26",
+  "bit_order": "LSB-first within each byte",
+  "carrier_frequency_hz": 38000,
+  "frame_bytes": 14,
+  "captured_pulses": 228,
+  "observations": [
+    {
+      "id": "cool_24_fan5_soft_horizontal",
+      "settings": "cool, 24.0 C, fan step 5, soft wind, horizontal swing",
+      "special_frame": "23CB26020040D090830000000048",
+      "normal_frame": "23CB2601002403070500000088D0"
+    },
+    {
+      "id": "cool_24_fan5_horizontal",
+      "settings": "cool, 24.0 C, fan step 5, horizontal swing",
+      "special_frame": "23CB26020040C090830000000038",
+      "normal_frame": "23CB2601002403070500000088D0"
+    },
+    {
+      "id": "cool_24_fan5",
+      "settings": "cool, 24.0 C, fan step 5",
+      "special_frame": "23CB26020040C0008300000000A8",
+      "normal_frame": "23CB2601002403070500000080C8"
+    },
+    {
+      "id": "cool_24_turbo",
+      "settings": "cool, 24.0 C, fan step 6 turbo",
+      "special_frame": "23CB26020040C0008300000000A8",
+      "normal_frame": "23CB260100244307050000008008"
+    },
+    {
+      "id": "cool_24_fan_auto",
+      "settings": "cool, 24.0 C, automatic fan",
+      "special_frame": "23CB260200402000830000000008",
+      "normal_frame": "23CB2601002403070000000080C3"
+    },
+    {
+      "id": "cool_24_fan0_quiet",
+      "settings": "cool, 24.0 C, fan step 0 quiet",
+      "special_frame": "23CB260200604000830000000048",
+      "normal_frame": "23CB2601002403070200000080C5"
+    },
+    {
+      "id": "cool_24_fan1",
+      "settings": "cool, 24.0 C, fan step 1",
+      "special_frame": "23CB260200404000830000000028",
+      "normal_frame": "23CB2601002403070200000080C5"
+    },
+    {
+      "id": "cool_24_fan2",
+      "settings": "cool, 24.0 C, fan step 2",
+      "special_frame": "23CB260200406000830000000048",
+      "normal_frame": "23CB2601002403070300000080C6"
+    },
+    {
+      "id": "cool_24_fan3",
+      "settings": "cool, 24.0 C, fan step 3",
+      "special_frame": "23CB260200408000830000000068",
+      "normal_frame": "23CB2601002403070300000080C6"
+    },
+    {
+      "id": "cool_24_fan4",
+      "settings": "cool, 24.0 C, fan step 4",
+      "special_frame": "23CB26020040A000830000000088",
+      "normal_frame": "23CB2601002403070500000080C8"
+    },
+    {
+      "id": "cool_24_fan4_vertical",
+      "settings": "cool, 24.0 C, fan step 4, vertical swing",
+      "special_frame": "23CB26020040A008830000000090",
+      "normal_frame": "23CB2601002403073D0000008000"
+    },
+    {
+      "id": "cool_24_sleep_display_off_vertical",
+      "settings": "cool, 24.0 C, sleep, display off, vertical swing",
+      "special_frame": "23CB26020040C0088300000000B0",
+      "normal_frame": "23CB26010024430739000000803C"
+    }
+  ]
+}

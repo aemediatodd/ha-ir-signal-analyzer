@@ -40,6 +40,13 @@ TCL112AC 状态帧会解析出开关、运行模式、0.5°C 精度的设定温�
 24.0°C 和 24.5°C 等不同状态会保留不同指纹。`shape_fingerprint` 和
 `legacy_fingerprint` 用于兼容以前建立的本地学习码。
 
+该 TCL 遥控器每次按键会先发送 Type 2 特殊命令帧，再发送 Type 1 完整状态帧。
+集成不会再把 Type 2 错判成关机；两帧间隔不超过 1.5 秒时，第二帧的属性会
+包含 `preceding_special_frame`、`pair_interval_ms` 和两帧按原顺序排列的
+`replay_sequence`。要完整复现风速细分、柔风和摆风操作，应依次重放这两帧。
+实测样本和字段说明保存在 `reference/tcl112ac-observations.json` 与
+`reference/TCL112AC.md`，可供其他项目直接引用和继续补充。
+
 ## 1. 分别刷入两份 ESPHome 固件
 
 - 长期监听机：`esphome/xiao-ir-mate-listener.yaml`，节点名为

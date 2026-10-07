@@ -175,6 +175,32 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(result.attributes["match_status"], "decoded")
         self.assertIsNone(result.unknown_state)
 
+    def test_tcl_pair_exposes_two_frame_replay_sequence(self):
+        frames = [
+            {"action": "send_raw", "raw": "special"},
+            {"action": "send_raw", "raw": "normal"},
+        ]
+        result = catalog.interpret_signal(
+            protocol="tcl112ac",
+            status="decoded",
+            fields={
+                "summary": "Cool 24 C / High steps 4 5",
+                "checksum_valid": True,
+                "replay_sequence": frames,
+            },
+            fingerprint="paired-state-key",
+            raw="3000,-1650",
+            pulse_count=228,
+            source="listener",
+            received_at="2026-10-07T10:00:00+00:00",
+            records={},
+            local_codes={},
+            database_source="irdb_online",
+        )
+
+        self.assertEqual(result.attributes["replay"]["mode"], "raw_sequence")
+        self.assertEqual(result.attributes["replay"]["frames"], frames)
+
     def test_invalid_or_empty_archive_is_rejected(self):
         with self.assertRaises(ValueError):
             catalog.parse_irdb_archive(b"not a zip")

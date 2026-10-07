@@ -293,6 +293,13 @@ def _replay_payload(
     fields: dict[str, Any],
     raw: str,
 ) -> dict[str, Any]:
+    replay_sequence = fields.get("replay_sequence")
+    if replay_sequence:
+        return {
+            "mode": "raw_sequence",
+            "frame_count": len(replay_sequence),
+            "frames": replay_sequence,
+        }
     if protocol == "nec" and status == "decoded" and not fields.get("repeat"):
         return {
             "mode": "nec",

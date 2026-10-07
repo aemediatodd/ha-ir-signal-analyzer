@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 import sys
 import unittest
@@ -126,7 +127,7 @@ class DecoderTests(unittest.TestCase):
         self.assertTrue(result.fields["power"])
         self.assertEqual(result.fields["mode"], "cool")
         self.assertEqual(result.fields["temperature_c"], 24.5)
-        self.assertEqual(result.fields["fan_mode"], "quiet")
+        self.assertEqual(result.fields["fan_mode"], "quiet_sleep")
         self.assertTrue(result.fields["checksum_valid"])
 
     def test_tcl112ac_fingerprint_uses_decoded_data_not_timing(self):
@@ -141,6 +142,42 @@ class DecoderTests(unittest.TestCase):
             decoder.fingerprint(first, first_result),
             decoder.fingerprint(second, second_result),
         )
+
+    def test_tcl112ac_special_frame_is_not_power_off(self):
+        values = list(bytes.fromhex("23CB260200604000830000000048"))
+        result = decoder.analyze(tcl112_signal(values), "auto")
+
+        self.assertEqual(result.fields["message_type"], "special")
+        self.assertEqual(result.fields["fan_request"], "quiet_step_0")
+        self.assertEqual(result.fields["observed_command"], "fan_step_0_quiet")
+        self.assertNotIn("power", result.fields)
+        self.assertNotIn("Power off", result.fields["summary"])
+        self.assertTrue(result.fields["checksum_valid"])
+
+    def test_all_observed_tcl112ac_pairs_decode_and_validate(self):
+        fixture_path = (
+            Path(__file__).parents[1]
+            / "reference"
+            / "tcl112ac-observations.json"
+        )
+        observations = json.loads(fixture_path.read_text(encoding="utf-8"))[
+            "observations"
+        ]
+
+        for observation in observations:
+            with self.subTest(observation=observation["id"]):
+                special = decoder.analyze(
+                    tcl112_signal(list(bytes.fromhex(observation["special_frame"]))),
+                    "auto",
+                )
+                normal = decoder.analyze(
+                    tcl112_signal(list(bytes.fromhex(observation["normal_frame"]))),
+                    "auto",
+                )
+                self.assertEqual(special.fields["message_type"], "special")
+                self.assertEqual(normal.fields["message_type"], "normal")
+                self.assertTrue(special.fields["checksum_valid"])
+                self.assertTrue(normal.fields["checksum_valid"])
 
 
 if __name__ == "__main__":

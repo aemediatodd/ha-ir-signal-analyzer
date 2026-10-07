@@ -54,6 +54,7 @@ class IRSignalHub:
         self.last_signal: CapturedSignal | None = None
         self.last_interpretation: SignalInterpretation | None = None
         self.last_unknown: SignalInterpretation | None = None
+        self.pending_tcl_special: CapturedSignal | None = None
         self.last_error: str | None = None
 
     async def async_initialize(self) -> None:
@@ -69,7 +70,7 @@ class IRSignalHub:
             pulses = parse_raw(event.data.get("raw", ""))
             raw = ",".join(str(value) for value in pulses)
             analysis = analyze(pulses, self.decoder)
-            self.last_signal = CapturedSignal(
+            captured = CapturedSignal(
                 received_at=datetime.now(timezone.utc),
                 source=source,
                 raw=raw,
@@ -81,6 +82,8 @@ class IRSignalHub:
                 device_sequence=_optional_int(event.data.get("capture_sequence")),
                 device_uptime_ms=_optional_int(event.data.get("device_uptime_ms")),
             )
+            self._link_tcl_frames(captured)
+            self.last_signal = captured
             self._update_interpretation()
             self.last_error = None
         except (TypeError, ValueError) as err:
@@ -129,6 +132,59 @@ class IRSignalHub:
         self.last_interpretation = interpretation
         if interpretation.unknown_state is not None:
             self.last_unknown = interpretation
+
+    def _link_tcl_frames(self, signal: CapturedSignal) -> None:
+        fields = signal.analysis.fields
+        if signal.analysis.protocol != "tcl112ac":
+            self.pending_tcl_special = None
+            return
+        if fields.get("message_type") == "special":
+            self.pending_tcl_special = signal
+            return
+        if fields.get("message_type") != "normal":
+            return
+
+        special = self.pending_tcl_special
+        self.pending_tcl_special = None
+        if special is None:
+            return
+        interval_ms = int(
+            (signal.received_at - special.received_at).total_seconds() * 1000
+        )
+        if not 0 <= interval_ms <= 1500:
+            return
+
+        special_fields = special.analysis.fields
+        fields["preceding_special_frame"] = {
+            "data_hex": special_fields.get("data_hex"),
+            "summary": special_fields.get("summary"),
+            "fan_request": special_fields.get("fan_request"),
+            "observed_command": special_fields.get("observed_command"),
+            "vertical_swing_request": special_fields.get("vertical_swing_request"),
+            "horizontal_swing_request": special_fields.get(
+                "horizontal_swing_request"
+            ),
+        }
+        fields["pair_interval_ms"] = interval_ms
+        observed_command = special_fields.get("observed_command")
+        if observed_command:
+            fields["remote_command"] = observed_command
+            fields["summary"] = (
+                f"{fields.get('summary')} / "
+                f"{str(observed_command).replace('_', ' ').title()}"
+            )
+        fields["replay_sequence"] = [
+            {
+                "action": "esphome.xiao_ir_transmitter_send_raw",
+                "carrier_frequency": 38000,
+                "raw": special.raw,
+            },
+            {
+                "action": "esphome.xiao_ir_transmitter_send_raw",
+                "carrier_frequency": 38000,
+                "raw": signal.raw,
+            },
+        ]
 
 
 def _optional_int(value: Any) -> int | None:
