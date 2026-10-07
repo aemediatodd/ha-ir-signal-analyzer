@@ -279,20 +279,43 @@ class IRSignalHub:
             raise HomeAssistantError(self.validation_details["error"])
 
         try:
-            await self.hass.services.async_call(
-                action_parts[0],
-                action_parts[1],
-                {
-                    "first_code": encoded.special,
-                    "second_code": encoded.normal,
-                    "delay_ms": self.tcl_pair_delay_ms,
-                    "carrier_frequency": 38000,
-                },
-                blocking=True,
-            )
+            await self.async_transmit_encoded(encoded)
         except Exception as err:
             self._set_validation_error(str(err))
             raise
+
+    async def async_send_current_tcl(self) -> None:
+        """Encode and transmit the current TCL-Advanced state."""
+        try:
+            encoded = encode_tcl112ac(**self.tcl_test_parameters)
+            await self.async_transmit_encoded(encoded)
+            self.validation_details = {
+                "source": "climate_entity",
+                "parameters": self.tcl_test_parameters,
+                "expected_special": encoded.special_hex,
+                "expected_normal": encoded.normal_hex,
+                "finished_at": datetime.now(timezone.utc).isoformat(),
+            }
+        except ValueError as err:
+            raise HomeAssistantError(str(err)) from err
+
+    async def async_transmit_encoded(self, encoded: EncodedTcl112Ac) -> None:
+        action_parts = TCL_TEST_TRANSMITTER_ACTION.split(".", 1)
+        if not self.hass.services.has_service(*action_parts):
+            raise HomeAssistantError(
+                f"ESPHome action {TCL_TEST_TRANSMITTER_ACTION} is unavailable"
+            )
+        await self.hass.services.async_call(
+            action_parts[0],
+            action_parts[1],
+            {
+                "first_code": encoded.special,
+                "second_code": encoded.normal,
+                "delay_ms": self.tcl_pair_delay_ms,
+                "carrier_frequency": 38000,
+            },
+            blocking=True,
+        )
 
     async def async_refresh_catalog(self) -> None:
         async_dispatcher_send(self.hass, f"{SIGNAL_UPDATE}_{self.entry.entry_id}")

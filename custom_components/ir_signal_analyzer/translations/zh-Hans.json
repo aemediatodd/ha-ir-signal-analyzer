@@ -30,6 +30,9 @@
     }
   },
   "entity": {
+    "climate": {
+      "tcl_advanced_climate": { "name": "TCL-高级" }
+    },
     "sensor": {
       "last_received": { "name": "最近接收" },
       "protocol": { "name": "协议" },

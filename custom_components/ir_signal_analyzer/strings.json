@@ -30,6 +30,9 @@
     }
   },
   "entity": {
+    "climate": {
+      "tcl_advanced_climate": { "name": "TCL-Advanced" }
+    },
     "sensor": {
       "last_received": { "name": "Last received" },
       "protocol": { "name": "Protocol" },
