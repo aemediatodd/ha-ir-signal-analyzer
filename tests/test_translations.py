@@ -40,8 +40,8 @@ class TranslationTests(unittest.TestCase):
         english = load_json(INTEGRATION_PATH / "translations" / "en.json")
         chinese = load_json(INTEGRATION_PATH / "translations" / "zh-Hans.json")
         key = "two_frame_remote_interval"
-        self.assertEqual(english["entity"]["number"][key]["name"], "Two-frame remote interval")
-        self.assertEqual(chinese["entity"]["number"][key]["name"], "2帧遥控间隔")
+        self.assertEqual(english["entity"]["number"][key]["name"], "Remote 2-frame interval")
+        self.assertEqual(chinese["entity"]["number"][key]["name"], "发送2帧间隔")
 
 
 if __name__ == "__main__":

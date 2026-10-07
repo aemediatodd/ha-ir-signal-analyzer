@@ -35,7 +35,7 @@ After installation, the integration creates:
 - `button.ir_signal_refresh_irdb_snapshot`: manually downloads and validates a
   fresh IRDB snapshot, updates the timestamp, reloads the local codebook, and
   re-analyzes the latest captured signal.
-- `number.ir_signal_tcl_paired_frame_delay`: configures the TCL inter-frame
+- **Remote 2-frame interval**: configures the TCL inter-frame
   transmit delay from 150 to 250 ms in 1 ms steps; it defaults to 190 ms and is
   persisted across restarts.
 - `select.ir_signal_decoder`: selects `auto`, `nec`, or `raw`. Changing this

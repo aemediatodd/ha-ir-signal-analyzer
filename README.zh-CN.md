@@ -28,7 +28,7 @@ Home Assistant Recorder 历史。即使连续按下同一个按键，接收时�
 - `sensor.ir_signal_irdb_snapshot_updated`：显示当前离线 IRDB 快照的更新时间。
 - `button.ir_signal_refresh_irdb_snapshot`：手动下载并校验最新 IRDB 快照，同时
   重新加载本地学习码库，并重新解析最近一次收到的信号。
-- `number.ir_signal_tcl_paired_frame_delay`：TCL 双帧发送间隔，允许设置
+- **发送2帧间隔**：TCL 双帧发送间隔，允许设置
   `150–250 ms`，步进 `1 ms`，默认 `190 ms`；修改后会保存并在重启后保留。
 - `select.ir_signal_decoder`：选择 `auto`、`nec` 或 `raw`，选择后会立即按
   指定方式重新解析最近一次信号。
@@ -51,7 +51,7 @@ TCL112AC 状态帧会解析出开关、运行模式、0.5°C 精度的设定温�
 集成不会再把 Type 2 错判成关机；两帧间隔不超过 1.5 秒时，第二帧的属性会
 包含 `preceding_special_frame`、`pair_interval_ms` 和两帧按原顺序排列的
 `replay_sequence`。要完整复现风速细分、柔风和摆风操作，应依次重放这两帧。
-第一帧的 `delay_after_ms` 来自 **TCL paired-frame delay** 实体，调整后新接收
+第一帧的 `delay_after_ms` 来自 **发送2帧间隔** 实体，调整后新接收
 到的帧对会直接使用新值。
 实测样本和字段说明保存在 `reference/tcl112ac-observations.json` 与
 `reference/TCL112AC.md`，可供其他项目直接引用和继续补充。

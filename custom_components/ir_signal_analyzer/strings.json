@@ -36,7 +36,7 @@
       "refresh_irdb_snapshot": { "name": "Refresh IRDB snapshot" }
     },
     "number": {
-      "two_frame_remote_interval": { "name": "Two-frame remote interval" }
+      "two_frame_remote_interval": { "name": "Remote 2-frame interval" }
     }
   }
 }
