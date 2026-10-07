@@ -5,6 +5,16 @@
   "carrier_frequency_hz": 38000,
   "frame_bytes": 14,
   "captured_pulses": 228,
+  "paired_frame_timing": {
+    "meaning": "Home Assistant receive-time interval from the type-2 command frame to the following type-1 state frame",
+    "samples_ms": [170, 193, 200, 187, 189, 191, 182, 189],
+    "sample_count": 8,
+    "minimum_ms": 170,
+    "maximum_ms": 200,
+    "mean_ms": 187.625,
+    "median_ms": 189,
+    "recommended_transmit_delay_ms": 190
+  },
   "observations": [
     {
       "id": "cool_24_fan5_soft_horizontal",

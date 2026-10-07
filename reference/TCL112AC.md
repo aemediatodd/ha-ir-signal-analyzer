@@ -41,6 +41,22 @@ produce native fan code 2, while steps 4 and 5 both produce code 5. Consumers
 that need exact remote-button semantics should preserve and replay both frames
 in their observed order.
 
+## Paired-frame timing
+
+Eight Home Assistant observations measured the interval from the received
+type-2 command frame to its following type-1 state frame:
+
+```text
+170, 193, 200, 187, 189, 191, 182, 189 ms
+```
+
+The range is 170-200 ms, the arithmetic mean is 187.625 ms, and the median is
+189 ms. Encoders should use a nominal **190 ms delay** between the completed
+type-2 transmission and the start of the type-1 transmission. This is an
+application-layer observation and includes small ESPHome/API scheduling jitter;
+receivers should tolerate at least the observed range rather than require an
+exact interval.
+
 ## Dataset cautions
 
 These mappings are empirical observations from one TCL remote/air-conditioner
