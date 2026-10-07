@@ -60,16 +60,6 @@ async def async_setup_entry(
                 "tcl_test_auxiliary_heat",
                 "mdi:radiator",
             ),
-            TCLAdvancedFeatureSwitch(
-                entry, hub, TCL_TEST_SLEEP, "tcl_advanced_sleep", "mdi:sleep"
-            ),
-            TCLAdvancedFeatureSwitch(
-                entry,
-                hub,
-                TCL_TEST_SOFT_WIND,
-                "tcl_advanced_soft_wind",
-                "mdi:weather-windy",
-            ),
         ]
     )
 
