@@ -48,6 +48,11 @@ soft wind alone (`40 D0 xx`) and from the earlier sleep/display-off sample
 automatic-fan soft-wind sleep as its own observed command rather than inferring
 it from either feature independently.
 
+The captured combination "cool, 24 C, fan step 0, sleep, vertical swing" uses
+special bytes `60 40 08` and normal bytes with fan/swing `0x39` but without the
+normal-frame `0x40` feature flag. Sleep-related bits are therefore selected by
+the validated command combination, not by a universal sleep bit assumption.
+
 ## Paired-frame timing
 
 Eight Home Assistant observations measured the interval from the received

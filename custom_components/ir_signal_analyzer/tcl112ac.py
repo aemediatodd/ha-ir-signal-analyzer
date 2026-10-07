@@ -112,12 +112,16 @@ def encode_tcl112ac(
 
     # Type 2 tells the appliance which physical remote command was selected.
     special = [0x23, 0xCB, 0x26, 0x02, 0x00, 0x40, 0x00, 0x00, 0x83, 0, 0, 0, 0, 0]
-    if fan == "0" and not sleep:
+    if fan == "0" and not soft_sleep:
         special[5] = 0x60
     special[6] = (
         0x30
         if soft_sleep
-        else (0xC0 if sleep else (0xD0 if soft_wind else FAN_SPECIAL_PARAMETERS[fan]))
+        else (
+            0x40
+            if sleep and fan == "0"
+            else (0xC0 if sleep else (0xD0 if soft_wind else FAN_SPECIAL_PARAMETERS[fan]))
+        )
     )
     if swing_vertical:
         special[7] |= 0x08
@@ -130,7 +134,7 @@ def encode_tcl112ac(
     if power:
         normal[5] |= 0x04
     normal[6] = MODE_CODES[mode]
-    if (sleep and not soft_sleep) or fan == "6":
+    if (sleep and not soft_sleep and fan in {"4", "5", "6"}) or fan == "6":
         normal[6] |= 0x40
 
     half_degrees = int(round(temperature * 2))

@@ -31,6 +31,9 @@ class Tcl112AcEncoderTests(unittest.TestCase):
             ({"fan_step": 4, "swing_vertical": True}, "0x23CB26020040A008830000000090", "0x23CB2601002403073D0000008000"),
             ({"fan_step": 4, "sleep": True, "swing_vertical": True}, "0x23CB26020040C0088300000000B0", "0x23CB26010024430739000000803C"),
             ({"fan_step": "auto", "soft_wind": True, "sleep": True}, "0x23CB260200403000830000000018", "0x23CB2601002403070100000080C4"),
+            ({"fan_step": 0, "sleep": True, "swing_vertical": True}, "0x23CB260200604008830000000050", "0x23CB2601002403073900000080FC"),
+            ({"fan_step": 0, "sleep": True, "swing_horizontal": True}, "0x23CB2602006040908300000000D8", "0x23CB2601002403070100000088CC"),
+            ({"fan_step": 0, "sleep": True}, "0x23CB260200604000830000000048", "0x23CB2601002403070100000080C4"),
         ]
         for options, special_hex, normal_hex in cases:
             with self.subTest(options=options):
