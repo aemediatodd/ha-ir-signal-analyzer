@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "IR Signal Analyzer",
+        "description": "Listen for esphome.ir_received events. Leave source empty to accept every listener.",
+        "data": {
+          "source": "ESPHome source filter"
+        }
+      }
+    }
+  }
+}

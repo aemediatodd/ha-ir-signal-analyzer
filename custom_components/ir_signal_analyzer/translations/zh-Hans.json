@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "红外信号分析器",
+        "description": "监听 esphome.ir_received 事件。来源留空时接收所有监听器。",
+        "data": {
+          "source": "ESPHome 来源过滤器"
+        }
+      }
+    }
+  }
+}

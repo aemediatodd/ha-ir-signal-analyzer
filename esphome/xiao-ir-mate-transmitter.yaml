@@ -1,0 +1,67 @@
+substitutions:
+  name: xiao-ir-transmitter
+  friendly_name: XIAO IR Transmitter
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  name_add_mac_suffix: false
+
+esp32:
+  board: seeed_xiao_esp32c3
+  framework:
+    type: esp-idf
+
+logger:
+
+api:
+  id: api_id
+  encryption:
+    key: !secret api_encryption_key
+  actions:
+    - action: send_raw
+      variables:
+        code: int[]
+        carrier_frequency: float
+      then:
+        - remote_transmitter.transmit_raw:
+            code: !lambda return code;
+            carrier_frequency: !lambda return carrier_frequency;
+
+    - action: send_nec
+      variables:
+        address: int
+        command: int
+      then:
+        - remote_transmitter.transmit_nec:
+            address: !lambda return address;
+            command: !lambda return command;
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "${friendly_name} Fallback"
+
+captive_portal:
+
+button:
+  - platform: restart
+    name: Restart
+    entity_category: diagnostic
+
+remote_transmitter:
+  id: ir_tx
+  pin: GPIO3
+  carrier_duty_percent: 50%
+  non_blocking: true
+
+infrared:
+  - platform: ir_rf_proxy
+    name: IR Proxy Transmitter
+    id: ir_proxy_tx
+    remote_transmitter_id: ir_tx

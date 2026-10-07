@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.esphome/
+build/
+secrets.yaml
+*.log

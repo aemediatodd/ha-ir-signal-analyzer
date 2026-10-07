@@ -1,0 +1,79 @@
+substitutions:
+  name: xiao-ir-listener
+  friendly_name: XIAO IR Listener
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  name_add_mac_suffix: false
+
+esp32:
+  board: seeed_xiao_esp32c3
+  framework:
+    type: esp-idf
+
+logger:
+  level: DEBUG
+
+api:
+  id: api_id
+  max_send_queue: 32
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "${friendly_name} Fallback"
+
+captive_portal:
+
+button:
+  - platform: restart
+    name: Restart
+    entity_category: diagnostic
+
+remote_receiver:
+  - id: ir_rx
+    pin:
+      number: GPIO4
+      inverted: true
+    dump: all
+    tolerance: 25%
+    filter: 50us
+    idle: 10ms
+    buffer_size: 10kB
+    on_raw:
+      then:
+        - homeassistant.event:
+            event: esphome.ir_received
+            data:
+              source: ${name}
+            data_template:
+              raw: "{{ raw_code }}"
+              pulse_count: "{{ pulse_count }}"
+            variables:
+              raw_code: !lambda |-
+                std::string result;
+                result.reserve(x.size() * 8);
+                for (size_t i = 0; i < x.size(); i++) {
+                  if (i != 0) {
+                    result += ",";
+                  }
+                  result += std::to_string(x[i]);
+                }
+                return result;
+              pulse_count: !lambda |-
+                return std::to_string(x.size());
+
+infrared:
+  - platform: ir_rf_proxy
+    name: IR Proxy Receiver
+    id: ir_proxy_rx
+    receiver_frequency: 38kHz
+    remote_receiver_id: ir_rx
