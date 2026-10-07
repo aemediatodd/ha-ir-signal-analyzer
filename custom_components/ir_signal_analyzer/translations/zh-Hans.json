@@ -86,6 +86,10 @@
           "6": "6档（强劲）"
         }
       }
+      ,"tcl_test_remote_profile": {
+        "name": "TCL 遥控器",
+        "state": { "TCL-高级": "TCL-高级" }
+      }
     },
     "button": {
       "refresh_irdb_snapshot": { "name": "更新 IRDB 快照" },

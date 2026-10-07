@@ -15,6 +15,8 @@ from .const import (
     TCL_TEST_FAN_STEP,
     TCL_TEST_MODE,
     TCL_TEST_MODE_OPTIONS,
+    TCL_TEST_REMOTE_PROFILE,
+    TCL_REMOTE_PROFILE_TCL_ADVANCED,
 )
 from .entity import IRSignalEntity
 
@@ -30,6 +32,7 @@ async def async_setup_entry(
             IRDecoderSelect(entry, hub),
             TCLTestModeSelect(entry, hub),
             TCLTestFanStepSelect(entry, hub),
+            TCLRemoteProfileSelect(entry, hub),
         ]
     )
 
@@ -85,7 +88,40 @@ class TCLTestFanStepSelect(IRSignalEntity, SelectEntity):
     def current_option(self):
         return self.hub.tcl_test_state[TCL_TEST_FAN_STEP]
 
+    @property
+    def options(self):
+        mode = self.hub.tcl_test_state[TCL_TEST_MODE]
+        if mode == "dry":
+            return ["1"]
+        if mode in {"auto", "fan_only"}:
+            return ["auto"]
+        return TCL_TEST_FAN_OPTIONS
+
     async def async_select_option(self, option: str) -> None:
         if option not in TCL_TEST_FAN_OPTIONS:
             raise ValueError(f"Unsupported TCL fan step: {option}")
         self.hub.set_tcl_test_parameter(TCL_TEST_FAN_STEP, option)
+
+
+class TCLRemoteProfileSelect(IRSignalEntity, SelectEntity):
+    """Select the configured transmitter profile used by the workbench."""
+
+    _attr_translation_key = "tcl_test_remote_profile"
+    _attr_icon = "mdi:remote"
+
+    def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
+        super().__init__(entry, hub)
+        self._attr_unique_id = f"{entry.entry_id}_tcl_remote_profile"
+
+    @property
+    def options(self):
+        return [TCL_REMOTE_PROFILE_TCL_ADVANCED]
+
+    @property
+    def current_option(self):
+        return self.hub.tcl_test_state[TCL_TEST_REMOTE_PROFILE]
+
+    async def async_select_option(self, option: str) -> None:
+        if option not in self.options:
+            raise ValueError(f"Unsupported remote profile: {option}")
+        self.hub.set_tcl_test_parameter(TCL_TEST_REMOTE_PROFILE, option)

@@ -32,6 +32,7 @@ from .const import (
     SERVICE_SEND_TCL112AC,
     TCL_TEST_DEFAULTS,
     TCL_TEST_AUXILIARY_HEAT,
+    TCL_TEST_REMOTE_PROFILE,
     TCL_TEST_FAN_STEP,
     TCL_TEST_MODE,
     TCL_TEST_POWER,
@@ -208,7 +209,10 @@ class IRSignalHub:
     def set_tcl_test_parameter(self, key: str, value: Any) -> None:
         if key not in TCL_TEST_DEFAULTS:
             raise ValueError(f"unsupported TCL test parameter: {key}")
-        self.tcl_test_state[key] = value
+        if key == TCL_TEST_REMOTE_PROFILE:
+            self.tcl_test_state[key] = str(value)
+        else:
+            self._normalize_tcl_test_state(key, value)
         self.hass.config_entries.async_update_entry(
             self.entry,
             options={**self.entry.options, key: value},
@@ -219,6 +223,24 @@ class IRSignalHub:
         self.validation_status = "idle"
         self.validation_details = {"parameters": self.tcl_test_parameters}
         async_dispatcher_send(self.hass, f"{SIGNAL_UPDATE}_{self.entry.entry_id}")
+
+    @callback
+    def _normalize_tcl_test_state(self, key: str, value: Any) -> None:
+        """Apply the remote's mutually exclusive mode/feature rules."""
+        self.tcl_test_state[key] = value
+        mode = str(self.tcl_test_state[TCL_TEST_MODE])
+        auxiliary = bool(self.tcl_test_state[TCL_TEST_AUXILIARY_HEAT])
+        if key == TCL_TEST_AUXILIARY_HEAT and value:
+            self.tcl_test_state[TCL_TEST_MODE] = "heat"
+            mode = "heat"
+        if mode in {"auto", "dry", "fan_only"}:
+            self.tcl_test_state[TCL_TEST_FAN_STEP] = "auto" if mode != "dry" else "1"
+            self.tcl_test_state[TCL_TEST_SOFT_WIND] = False
+            self.tcl_test_state[TCL_TEST_SLEEP] = False
+            if mode != "heat":
+                self.tcl_test_state[TCL_TEST_AUXILIARY_HEAT] = False
+        if auxiliary and mode == "heat":
+            self.tcl_test_state[TCL_TEST_SOFT_WIND] = False
 
     @property
     def tcl_test_parameters(self) -> dict[str, Any]:

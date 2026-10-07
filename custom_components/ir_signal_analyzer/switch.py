@@ -16,6 +16,7 @@ from .const import (
     TCL_TEST_SWING_HORIZONTAL,
     TCL_TEST_SWING_VERTICAL,
     TCL_TEST_AUXILIARY_HEAT,
+    TCL_TEST_MODE,
 )
 from .entity import IRSignalEntity
 
@@ -80,6 +81,19 @@ class TCLTestSwitch(IRSignalEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         return bool(self.hub.tcl_test_state[self._parameter_key])
+
+    @property
+    def available(self) -> bool:
+        mode = self.hub.tcl_test_state[TCL_TEST_MODE]
+        if self._parameter_key == TCL_TEST_SOFT_WIND:
+            return mode not in {"auto", "dry", "fan_only"} and not bool(
+                self.hub.tcl_test_state[TCL_TEST_AUXILIARY_HEAT]
+            )
+        if self._parameter_key == TCL_TEST_SLEEP:
+            return mode not in {"auto", "dry", "fan_only"}
+        if self._parameter_key == TCL_TEST_AUXILIARY_HEAT:
+            return mode == "heat"
+        return True
 
     async def async_turn_on(self, **kwargs) -> None:
         self.hub.set_tcl_test_parameter(self._parameter_key, True)
