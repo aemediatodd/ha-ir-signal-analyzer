@@ -1,0 +1,54 @@
+alias: TCL 空调高级双帧控制
+description: 现场编码并发送 TCL112AC Type 2 命令帧和 Type 1 完整状态帧。
+mode: restart
+fields:
+  power:
+    name: 电源
+    selector:
+      boolean:
+  temperature:
+    name: 温度
+    selector:
+      number:
+        min: 16
+        max: 31
+        step: 0.5
+        unit_of_measurement: "°C"
+  mode:
+    name: 模式
+    selector:
+      select:
+        options: [auto, cool, heat, dry, fan_only]
+  fan_step:
+    name: 风速档位
+    selector:
+      select:
+        options: [auto, "0", "1", "2", "3", "4", "5", "6"]
+  sleep:
+    name: 睡眠
+    selector:
+      boolean:
+  soft_wind:
+    name: 柔风
+    selector:
+      boolean:
+  swing_vertical:
+    name: 上下风
+    selector:
+      boolean:
+  swing_horizontal:
+    name: 左右风
+    selector:
+      boolean:
+sequence:
+  - action: ir_signal_analyzer.send_tcl112ac
+    data:
+      transmitter_action: esphome.xiao_ir_transmitter_send_raw_pair
+      power: "{{ power | default(true) }}"
+      mode: "{{ mode | default('cool') }}"
+      temperature: "{{ temperature | default(24) }}"
+      fan_step: "{{ fan_step | default('auto') }}"
+      sleep: "{{ sleep | default(false) }}"
+      soft_wind: "{{ soft_wind | default(false) }}"
+      swing_vertical: "{{ swing_vertical | default(false) }}"
+      swing_horizontal: "{{ swing_horizontal | default(false) }}"

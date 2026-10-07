@@ -1,0 +1,74 @@
+send_tcl112ac:
+  fields:
+    transmitter_action:
+      required: true
+      example: esphome.xiao_ir_transmitter_send_raw_pair
+      selector:
+        text:
+    power:
+      required: true
+      default: true
+      selector:
+        boolean:
+    mode:
+      required: true
+      default: cool
+      selector:
+        select:
+          options:
+            - auto
+            - cool
+            - heat
+            - dry
+            - fan_only
+    temperature:
+      required: true
+      default: 24
+      selector:
+        number:
+          min: 16
+          max: 31
+          step: 0.5
+          unit_of_measurement: "°C"
+    fan_step:
+      required: true
+      default: auto
+      selector:
+        select:
+          options:
+            - auto
+            - "0"
+            - "1"
+            - "2"
+            - "3"
+            - "4"
+            - "5"
+            - "6"
+    sleep:
+      required: true
+      default: false
+      selector:
+        boolean:
+    soft_wind:
+      required: true
+      default: false
+      selector:
+        boolean:
+    swing_vertical:
+      required: true
+      default: false
+      selector:
+        boolean:
+    swing_horizontal:
+      required: true
+      default: false
+      selector:
+        boolean:
+    delay_ms:
+      required: false
+      selector:
+        number:
+          min: 150
+          max: 250
+          step: 1
+          unit_of_measurement: ms

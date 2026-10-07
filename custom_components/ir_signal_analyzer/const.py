@@ -2,6 +2,7 @@ from homeassistant.const import Platform
 
 
 DOMAIN = "ir_signal_analyzer"
+SERVICE_SEND_TCL112AC = "send_tcl112ac"
 PLATFORMS = [Platform.SENSOR, Platform.SELECT, Platform.BUTTON, Platform.NUMBER]
 
 CONF_SOURCE = "source"

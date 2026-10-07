@@ -115,8 +115,31 @@ so it cannot create duplicate listening events.
 
 The transmitter also exposes ESPHome's official `TCL Air Conditioner` climate
 entity for basic controls and a device-timed `send_raw_pair` action for advanced
-TCL command/state pairs. An importable Home Assistant script is provided at
-`examples/ha-script-send-latest-tcl112ac.yaml`.
+TCL command/state pairs. The `ir_signal_analyzer.send_tcl112ac` Home Assistant
+action generates both frames from power, mode, temperature, remote fan step,
+sleep, soft-wind, vertical-swing, and horizontal-swing parameters. Importable
+scripts are provided in `examples/` for generated control and captured replay.
+
+Example generated control:
+
+```yaml
+action: ir_signal_analyzer.send_tcl112ac
+data:
+  transmitter_action: esphome.xiao_ir_transmitter_send_raw_pair
+  power: true
+  mode: cool
+  temperature: 24
+  fan_step: "5"
+  sleep: false
+  soft_wind: true
+  swing_vertical: false
+  swing_horizontal: true
+```
+
+Modes are `auto`, `cool`, `heat`, `dry`, and `fan_only`; temperature is 16-31 C
+in 0.5 C steps; fan step is `auto` or remote steps 0-6. Omitting `delay_ms`
+uses the configured Remote 2-frame interval. Soft wind is restricted to the
+observed fan-step-5 combination, and sleep cannot be combined with soft wind.
 
 ## 3. Verify reception
 

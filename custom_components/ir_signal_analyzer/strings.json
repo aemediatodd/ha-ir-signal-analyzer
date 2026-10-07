@@ -10,6 +10,24 @@
       }
     }
   },
+  "services": {
+    "send_tcl112ac": {
+      "name": "Send TCL112AC advanced state",
+      "description": "Generate and send a TCL112AC command frame followed by a complete state frame.",
+      "fields": {
+        "transmitter_action": { "name": "ESPHome transmitter action", "description": "The send_raw_pair action exposed by the transmitter." },
+        "power": { "name": "Power", "description": "Requested air-conditioner power state." },
+        "mode": { "name": "Mode", "description": "Requested operating mode." },
+        "temperature": { "name": "Temperature", "description": "Set temperature in 0.5 C steps." },
+        "fan_step": { "name": "Fan step", "description": "Automatic or remote fan step 0 through 6." },
+        "sleep": { "name": "Sleep", "description": "Use the observed sleep and display-off command." },
+        "soft_wind": { "name": "Soft wind", "description": "Use the observed soft-wind command; requires fan step 5." },
+        "swing_vertical": { "name": "Vertical swing", "description": "Enable up/down swing." },
+        "swing_horizontal": { "name": "Horizontal swing", "description": "Enable left/right swing." },
+        "delay_ms": { "name": "Two-frame interval", "description": "Optional override; otherwise uses the interval entity value." }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "last_received": { "name": "Last received" },

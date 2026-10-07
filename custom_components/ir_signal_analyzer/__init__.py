@@ -6,8 +6,12 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
+import voluptuous as vol
+
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import Event, HomeAssistant, callback
+from homeassistant.core import Event, HomeAssistant, ServiceCall, callback
+from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
 from .const import (
@@ -21,6 +25,7 @@ from .const import (
     SIGNAL_UPDATE,
     MAX_TCL_PAIR_DELAY_MS,
     MIN_TCL_PAIR_DELAY_MS,
+    SERVICE_SEND_TCL112AC,
 )
 from .catalog import SignalInterpretation
 from .catalog_manager import CatalogManager
@@ -31,6 +36,28 @@ from .decoder import (
     legacy_fingerprint,
     parse_raw,
     shape_fingerprint,
+)
+from .tcl112ac import FAN_NATIVE_CODES, MODE_CODES, encode_tcl112ac
+
+
+SEND_TCL112AC_SCHEMA = vol.Schema(
+    {
+        vol.Required("transmitter_action"): cv.string,
+        vol.Required("power", default=True): cv.boolean,
+        vol.Required("mode", default="cool"): vol.In(tuple(MODE_CODES)),
+        vol.Required("temperature", default=24.0): vol.Coerce(float),
+        vol.Required("fan_step", default="auto"): vol.All(
+            cv.string, vol.In(tuple(FAN_NATIVE_CODES))
+        ),
+        vol.Required("sleep", default=False): cv.boolean,
+        vol.Required("soft_wind", default=False): cv.boolean,
+        vol.Required("swing_vertical", default=False): cv.boolean,
+        vol.Required("swing_horizontal", default=False): cv.boolean,
+        vol.Optional("delay_ms"): vol.All(
+            vol.Coerce(int),
+            vol.Range(min=MIN_TCL_PAIR_DELAY_MS, max=MAX_TCL_PAIR_DELAY_MS),
+        ),
+    }
 )
 
 
@@ -224,6 +251,64 @@ def _optional_int(value: Any) -> int | None:
         return int(value) if value is not None else None
     except (TypeError, ValueError):
         return None
+
+
+async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
+    """Register integration actions."""
+
+    async def async_send_tcl112ac(call: ServiceCall) -> None:
+        action_parts = call.data["transmitter_action"].split(".", 1)
+        if len(action_parts) != 2 or action_parts[0] != "esphome":
+            raise HomeAssistantError(
+                "transmitter_action must be an ESPHome action such as "
+                "esphome.xiao_ir_transmitter_send_raw_pair"
+            )
+
+        try:
+            encoded = encode_tcl112ac(
+                power=call.data["power"],
+                mode=call.data["mode"],
+                temperature=call.data["temperature"],
+                fan_step=call.data["fan_step"],
+                sleep=call.data["sleep"],
+                soft_wind=call.data["soft_wind"],
+                swing_vertical=call.data["swing_vertical"],
+                swing_horizontal=call.data["swing_horizontal"],
+            )
+        except ValueError as err:
+            raise HomeAssistantError(str(err)) from err
+
+        delay_ms = call.data.get("delay_ms")
+        if delay_ms is None:
+            hubs = hass.data.get(DOMAIN, {}).values()
+            delay_ms = next(
+                (
+                    hub.tcl_pair_delay_ms
+                    for hub in hubs
+                    if isinstance(hub, IRSignalHub)
+                ),
+                DEFAULT_TCL_PAIR_DELAY_MS,
+            )
+
+        await hass.services.async_call(
+            action_parts[0],
+            action_parts[1],
+            {
+                "first_code": encoded.special,
+                "second_code": encoded.normal,
+                "delay_ms": delay_ms,
+                "carrier_frequency": 38000,
+            },
+            blocking=True,
+        )
+
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SEND_TCL112AC,
+        async_send_tcl112ac,
+        schema=SEND_TCL112AC_SCHEMA,
+    )
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

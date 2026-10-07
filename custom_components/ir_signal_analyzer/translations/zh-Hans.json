@@ -10,6 +10,24 @@
       }
     }
   },
+  "services": {
+    "send_tcl112ac": {
+      "name": "发送 TCL112AC 高级状态",
+      "description": "现场生成 TCL112AC 命令帧和完整状态帧，并按顺序发送。",
+      "fields": {
+        "transmitter_action": { "name": "ESPHome 发射动作", "description": "发射机提供的 send_raw_pair 动作。" },
+        "power": { "name": "电源", "description": "空调目标开关状态。" },
+        "mode": { "name": "模式", "description": "目标运行模式。" },
+        "temperature": { "name": "温度", "description": "设定温度，步进 0.5°C。" },
+        "fan_step": { "name": "风速档位", "description": "自动或遥控器 0 至 6 档。" },
+        "sleep": { "name": "睡眠", "description": "使用实测的睡眠和关指示灯命令。" },
+        "soft_wind": { "name": "柔风", "description": "使用实测柔风命令；要求风速 5 档。" },
+        "swing_vertical": { "name": "上下风", "description": "启用上下扫风。" },
+        "swing_horizontal": { "name": "左右风", "description": "启用左右扫风。" },
+        "delay_ms": { "name": "2帧间隔", "description": "可选覆盖值；留空使用间隔实体的值。" }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "last_received": { "name": "最近接收" },

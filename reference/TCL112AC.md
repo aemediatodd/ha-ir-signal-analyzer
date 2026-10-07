@@ -57,6 +57,16 @@ application-layer observation and includes small ESPHome/API scheduling jitter;
 receivers should tolerate at least the observed range rather than require an
 exact interval.
 
+## Home Assistant encoder
+
+The integration action `ir_signal_analyzer.send_tcl112ac` builds both frames
+from a complete requested state and converts each 14-byte frame to the observed
+228-pulse waveform. It delegates the pair to the ESPHome `send_raw_pair` action,
+so the 150-250 ms interval is executed on the transmitter rather than across
+two Home Assistant service calls. The encoder reproduces the captured fan,
+soft-wind, horizontal-swing, vertical-swing, turbo, and sleep samples byte for
+byte. Unobserved conflicting feature combinations are rejected.
+
 ## Dataset cautions
 
 These mappings are empirical observations from one TCL remote/air-conditioner

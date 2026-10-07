@@ -87,8 +87,12 @@ ota_password: "OTA 密码"
   发送两帧，避免 HA 或 Wi-Fi 调度改变 TCL 双帧间隔。
 
 `TCL Air Conditioner` 用于开关、模式、温度、自动/低/中/高风和上下摆风。
-精细风速、柔风、左右风和睡眠等功能继续使用双帧动作。可直接导入的 HA
-脚本位于 `examples/ha-script-send-latest-tcl112ac.yaml`。
+精细风速、柔风、左右风和睡眠可使用集成提供的
+`ir_signal_analyzer.send_tcl112ac` 动作现场编码，无需提前学习每一种组合。
+它会生成 Type 2 命令帧和 Type 1 完整状态帧，再调用发送机的
+`send_raw_pair` 在设备端定时发送。可直接导入的参数化 HA 脚本位于
+`examples/ha-script-control-tcl112ac.yaml`；重放最近捕获帧的脚本位于
+`examples/ha-script-send-latest-tcl112ac.yaml`。
 
 监听固件使用 1 ms API 批处理、ESP32 推荐的 8 条发送队列，并关闭协议全量
 日志，避免连续按键时累积几十秒的旧事件。`Last received` 属性中的
@@ -212,6 +216,33 @@ data:
 ```
 
 非 NEC 或不确定协议时使用 `send_raw`，它能保留原信号的完整时序。
+
+## 5. 直接编码控制 TCL 空调
+
+重启 HA 后，进入 **开发者工具 > 操作**，选择
+`IR Signal Analyzer: 发送 TCL112AC 高级状态`。也可以直接使用 YAML：
+
+```yaml
+action: ir_signal_analyzer.send_tcl112ac
+data:
+  transmitter_action: esphome.xiao_ir_transmitter_send_raw_pair
+  power: true
+  mode: cool
+  temperature: 24
+  fan_step: "5"
+  sleep: false
+  soft_wind: true
+  swing_vertical: false
+  swing_horizontal: true
+```
+
+支持的模式为 `auto`、`cool`、`heat`、`dry`、`fan_only`；温度范围
+`16–31°C`、步进 `0.5°C`；风速为 `auto` 或遥控器 `0–6` 档。
+不填写 `delay_ms` 时自动读取 **发送2帧间隔** 实体，默认 `190 ms`。
+
+目前柔风只允许与实测确认的 5 档组合；睡眠使用实测的睡眠/关指示灯编码。
+睡眠和柔风互斥。对这些未经样本确认的冲突组合，动作会报告错误并停止发送，
+避免把推测编码发送给空调。
 
 ## 双设备摆放建议
 
