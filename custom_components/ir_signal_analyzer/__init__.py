@@ -20,7 +20,14 @@ from .const import (
 )
 from .catalog import SignalInterpretation
 from .catalog_manager import CatalogManager
-from .decoder import DecodeResult, analyze, fingerprint, legacy_fingerprint, parse_raw
+from .decoder import (
+    DecodeResult,
+    analyze,
+    fingerprint,
+    legacy_fingerprint,
+    parse_raw,
+    shape_fingerprint,
+)
 
 
 @dataclass
@@ -30,6 +37,7 @@ class CapturedSignal:
     raw: str
     pulses: list[int]
     fingerprint: str
+    shape_fingerprint: str
     legacy_fingerprint: str
     analysis: DecodeResult
     device_sequence: int | None = None
@@ -60,14 +68,16 @@ class IRSignalHub:
         try:
             pulses = parse_raw(event.data.get("raw", ""))
             raw = ",".join(str(value) for value in pulses)
+            analysis = analyze(pulses, self.decoder)
             self.last_signal = CapturedSignal(
                 received_at=datetime.now(timezone.utc),
                 source=source,
                 raw=raw,
                 pulses=pulses,
-                fingerprint=fingerprint(pulses),
+                fingerprint=fingerprint(pulses, analysis),
+                shape_fingerprint=shape_fingerprint(pulses),
                 legacy_fingerprint=legacy_fingerprint(pulses),
-                analysis=analyze(pulses, self.decoder),
+                analysis=analysis,
                 device_sequence=_optional_int(event.data.get("capture_sequence")),
                 device_uptime_ms=_optional_int(event.data.get("device_uptime_ms")),
             )
@@ -86,7 +96,11 @@ class IRSignalHub:
             options={**self.entry.options, "decoder": decoder},
         )
         if self.last_signal is not None:
-            self.last_signal.analysis = analyze(self.last_signal.pulses, decoder)
+            analysis = analyze(self.last_signal.pulses, decoder)
+            self.last_signal.analysis = analysis
+            self.last_signal.fingerprint = fingerprint(
+                self.last_signal.pulses, analysis
+            )
             self._update_interpretation()
         async_dispatcher_send(self.hass, f"{SIGNAL_UPDATE}_{self.entry.entry_id}")
 
@@ -105,6 +119,7 @@ class IRSignalHub:
             status=signal.analysis.status,
             fields=signal.analysis.fields,
             fingerprint=signal.fingerprint,
+            shape_fingerprint=signal.shape_fingerprint,
             legacy_fingerprint=signal.legacy_fingerprint,
             raw=signal.raw,
             pulse_count=len(signal.pulses),

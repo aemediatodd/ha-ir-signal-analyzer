@@ -49,7 +49,17 @@ def parse_raw(raw: str | list[int] | tuple[int, ...]) -> list[int]:
     return pulses
 
 
-def fingerprint(pulses: list[int]) -> str:
+def fingerprint(pulses: list[int], analysis: DecodeResult | None = None) -> str:
+    """Return decoded-data identity when available, otherwise waveform shape."""
+    if analysis is not None and analysis.status == "decoded":
+        data_hex = analysis.fields.get("data_hex")
+        if data_hex:
+            identity = f"{analysis.protocol}|{data_hex}"
+            return hashlib.sha256(identity.encode("ascii")).hexdigest()[:16]
+    return shape_fingerprint(pulses)
+
+
+def shape_fingerprint(pulses: list[int]) -> str:
     """Return a stable fingerprint from pulse-shape classes.
 
     IR receivers introduce enough jitter for fixed-width rounding boundaries to
@@ -197,7 +207,103 @@ def decode_nec(pulses: list[int]) -> DecodeResult:
     )
 
 
+def decode_tcl112ac(pulses: list[int]) -> DecodeResult:
+    """Decode the TCL 112-bit full-state air-conditioner protocol."""
+    try:
+        bits = _decode_pulse_distance_bits(
+            pulses,
+            header_mark=3000,
+            header_space=1650,
+            bit_mark=500,
+            zero_space=325,
+            one_space=1050,
+            bit_count=112,
+        )
+    except ValueError as err:
+        return DecodeResult("tcl112ac", "mismatch", {}, str(err))
+
+    values = _decode_lsb_bytes(bits)
+    if values[:3] != [0x23, 0xCB, 0x26]:
+        return DecodeResult(
+            "tcl112ac",
+            "mismatch",
+            {},
+            "TCL112AC signature does not match 0x23CB26",
+        )
+
+    message_type = values[3] & 0x03
+    power = bool(values[5] & 0x04)
+    mode_code = values[6] & 0x0F
+    fan_code = values[8] & 0x07
+    swing_vertical_code = (values[8] >> 3) & 0x07
+    temperature = 31.0 - (values[7] & 0x0F)
+    if values[12] & 0x20:
+        temperature += 0.5
+
+    mode = {1: "heat", 2: "dry", 3: "cool", 7: "fan", 8: "auto"}.get(
+        mode_code, "unknown"
+    )
+    fan_mode = {
+        0: "auto",
+        1: "quiet",
+        2: "low",
+        3: "medium",
+        5: "high",
+    }.get(fan_code, "unknown")
+    swing_vertical = {
+        0: "off",
+        1: "highest",
+        2: "high",
+        3: "middle",
+        4: "low",
+        5: "lowest",
+        7: "swing",
+    }.get(swing_vertical_code, "unknown")
+    checksum_offset = 0x0F if values[3] == 0x02 else 0
+    expected_checksum = (sum(values[:-1]) + checksum_offset) & 0xFF
+    checksum_valid = values[-1] == expected_checksum
+    data_hex = "0x" + "".join(f"{value:02X}" for value in values)
+
+    if not power:
+        summary = "Power off"
+    else:
+        summary = f"{mode.title()} {temperature:g} C / {fan_mode.title()} fan"
+
+    return DecodeResult(
+        "tcl112ac",
+        "decoded",
+        {
+            "bit_count": 112,
+            "data_hex": data_hex,
+            "bytes_hex": [f"0x{value:02X}" for value in values],
+            "manufacturer": "TCL",
+            "device_type": "air_conditioner",
+            "model_family": "TCL112AC",
+            "message_type": "normal" if message_type == 1 else "special",
+            "message_type_code": message_type,
+            "power": power,
+            "mode": mode,
+            "mode_code": mode_code,
+            "temperature_c": temperature,
+            "fan_mode": fan_mode,
+            "fan_code": fan_code,
+            "swing_vertical": swing_vertical,
+            "swing_vertical_code": swing_vertical_code,
+            "swing_horizontal": bool(values[12] & 0x08),
+            "health": bool(values[6] & 0x10),
+            "turbo": bool(values[6] & 0x20),
+            "econo": bool(values[5] & 0x80),
+            "display_light": not bool(values[5] & 0x40),
+            "checksum": f"0x{values[-1]:02X}",
+            "expected_checksum": f"0x{expected_checksum:02X}",
+            "checksum_valid": checksum_valid,
+            "summary": summary,
+        },
+    )
+
+
 DECODERS: dict[str, Callable[[list[int]], DecodeResult]] = {
+    "tcl112ac": decode_tcl112ac,
     "nec": decode_nec,
 }
 

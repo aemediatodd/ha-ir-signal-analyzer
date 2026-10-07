@@ -152,6 +152,29 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(result.attributes["replay"]["mode"], "raw")
         self.assertTrue(result.attributes["unknown_segments"])
 
+    def test_decoded_tcl_air_conditioner_is_not_marked_unparsed(self):
+        result = catalog.interpret_signal(
+            protocol="tcl112ac",
+            status="decoded",
+            fields={
+                "summary": "Cool 24.5 C / Quiet fan",
+                "model_family": "TCL112AC",
+                "checksum_valid": True,
+            },
+            fingerprint="tcl-state-key",
+            raw="3000,-1650",
+            pulse_count=228,
+            source="listener",
+            received_at="2026-10-07T10:00:00+00:00",
+            records={},
+            local_codes={},
+            database_source="irdb_online",
+        )
+
+        self.assertEqual(result.state, "TCL AC / Cool 24.5 C / Quiet fan")
+        self.assertEqual(result.attributes["match_status"], "decoded")
+        self.assertIsNone(result.unknown_state)
+
     def test_invalid_or_empty_archive_is_rejected(self):
         with self.assertRaises(ValueError):
             catalog.parse_irdb_archive(b"not a zip")

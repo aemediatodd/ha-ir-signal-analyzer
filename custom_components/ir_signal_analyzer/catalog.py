@@ -193,6 +193,22 @@ def interpret_signal(
             unknown,
         )
 
+    if protocol == "tcl112ac" and status == "decoded":
+        summary = str(fields.get("summary") or "Decoded TCL air conditioner state")
+        attributes = {
+            **base,
+            "match_status": "decoded",
+            "confidence": "high" if fields.get("checksum_valid") else "medium",
+            "match_source": "protocol_decoder",
+            "manufacturer": "TCL",
+            "device_type": "air_conditioner",
+            "model": fields.get("model_family"),
+            "function": summary,
+            "known_fields": fields,
+            "unknown_fields": [] if fields.get("checksum_valid") else ["checksum"],
+        }
+        return SignalInterpretation(f"TCL AC / {summary}"[:255], attributes)
+
     if protocol == "nec" and status == "decoded":
         address = fields.get("address_hex", fields.get("address"))
         command = fields.get("command_hex", fields.get("command"))

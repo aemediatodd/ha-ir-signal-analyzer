@@ -197,7 +197,7 @@ content: |-
 
 ## Decoder behavior
 
-- `auto` currently tries NEC.
+- `auto` currently tries TCL112AC full-state air-conditioner frames and NEC.
 - A specific decoder forces analysis with that encoding and reports a useful
   mismatch error when the waveform does not fit.
 - `raw` performs no protocol decoding but still records the complete waveform.
@@ -207,6 +207,10 @@ content: |-
   microsecond rounding. Small receiver jitter therefore keeps the same key,
   while different pulse patterns remain distinct. `legacy_fingerprint` is
   retained as a compatibility key for existing local codebooks.
+- TCL112AC decoding exposes power, mode, 0.5 C temperature steps, fan, swing,
+  health, turbo, economy, display-light, and checksum fields. Its primary
+  fingerprint hashes the decoded 14-byte state, so identical settings remain
+  stable across timing jitter while 24.0 C and 24.5 C remain distinct.
 
 The XIAO IR Mate receiver is a demodulating receiver intended mainly for 38 kHz
 IR. It cannot truly capture every carrier frequency. Long air-conditioner frames
