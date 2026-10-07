@@ -2,7 +2,7 @@ from homeassistant.const import Platform
 
 
 DOMAIN = "ir_signal_analyzer"
-PLATFORMS = [Platform.SENSOR, Platform.SELECT]
+PLATFORMS = [Platform.SENSOR, Platform.SELECT, Platform.BUTTON]
 
 CONF_SOURCE = "source"
 DEFAULT_NAME = "IR Signal Analyzer"

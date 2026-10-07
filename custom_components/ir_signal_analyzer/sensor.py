@@ -23,6 +23,10 @@ async def async_setup_entry(
         [
             IRLastReceivedSensor(entry, hub),
             IRSignalDataSensor(entry, hub),
+            IRSignalAnalysisSensor(entry, hub),
+            IRUnparsedSignalSensor(entry, hub),
+            IRDatabaseStatusSensor(entry, hub),
+            IRDBSnapshotUpdatedSensor(entry, hub),
             IRProtocolSensor(entry, hub),
             IRCommandSensor(entry, hub),
         ]
@@ -134,3 +138,74 @@ class IRCommandSensor(IRSignalEntity, SensorEntity):
         if self.hub.last_signal is None:
             return None
         return self.hub.last_signal.analysis.as_dict()
+
+
+class IRSignalAnalysisSensor(IRSignalEntity, SensorEntity):
+    _attr_name = "Signal analysis"
+    _attr_icon = "mdi:database-search"
+
+    def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
+        super().__init__(entry, hub)
+        self._attr_unique_id = f"{entry.entry_id}_signal_analysis"
+
+    @property
+    def native_value(self):
+        result = self.hub.last_interpretation
+        return result.state if result else None
+
+    @property
+    def extra_state_attributes(self):
+        result = self.hub.last_interpretation
+        return result.attributes if result else None
+
+
+class IRUnparsedSignalSensor(IRSignalEntity, SensorEntity):
+    _attr_name = "Unparsed signal"
+    _attr_icon = "mdi:help-rhombus"
+
+    def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
+        super().__init__(entry, hub)
+        self._attr_unique_id = f"{entry.entry_id}_unparsed_signal"
+
+    @property
+    def native_value(self):
+        result = self.hub.last_unknown
+        return result.unknown_state if result else None
+
+    @property
+    def extra_state_attributes(self):
+        result = self.hub.last_unknown
+        return result.unknown_attributes if result else None
+
+
+class IRDatabaseStatusSensor(IRSignalEntity, SensorEntity):
+    _attr_name = "IR database status"
+    _attr_icon = "mdi:database-check"
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
+        super().__init__(entry, hub)
+        self._attr_unique_id = f"{entry.entry_id}_database_status"
+
+    @property
+    def native_value(self):
+        return self.hub.catalog.status
+
+    @property
+    def extra_state_attributes(self):
+        return self.hub.catalog.attributes
+
+
+class IRDBSnapshotUpdatedSensor(IRSignalEntity, SensorEntity):
+    _attr_name = "IRDB snapshot updated"
+    _attr_icon = "mdi:calendar-clock"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
+        super().__init__(entry, hub)
+        self._attr_unique_id = f"{entry.entry_id}_irdb_snapshot_updated"
+
+    @property
+    def native_value(self):
+        return self.hub.catalog.last_update

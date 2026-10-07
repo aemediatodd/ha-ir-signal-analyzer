@@ -19,6 +19,18 @@ After installation, the integration creates:
   signals show the protocol and complete encoded value; raw timings are shown
   for unknown signals. Long raw states are truncated to Home Assistant's
   255-character limit while the complete value remains in the `raw` attribute.
+- `sensor.ir_signal_analysis`: displays the best local-codebook or IRDB match.
+  Its attributes contain manufacturer, device type, function, candidates,
+  unknown fields, and a structured replay payload.
+- `sensor.ir_signal_unparsed_signal`: retains the most recent unmatched or
+  ambiguous signal separately for later analysis.
+- `sensor.ir_signal_ir_database_status`: reports the active database source,
+  cached record counts, errors, and local codebook status.
+- `sensor.ir_signal_irdb_snapshot_updated`: timestamp of the snapshot currently
+  stored on disk and used for offline matching.
+- `button.ir_signal_refresh_irdb_snapshot`: manually downloads and validates a
+  fresh IRDB snapshot, updates the timestamp, reloads the local codebook, and
+  re-analyzes the latest captured signal.
 - `select.ir_signal_decoder`: selects `auto`, `nec`, or `raw`. Changing this
   re-analyzes the most recently received signal.
 
@@ -120,10 +132,47 @@ title: IR Signal Analyzer
 entities:
   - entity: sensor.ir_signal_last_received
   - entity: sensor.ir_signal_data
+  - entity: sensor.ir_signal_signal_analysis
+  - entity: sensor.ir_signal_unparsed_signal
+  - entity: sensor.ir_signal_ir_database_status
+  - entity: sensor.ir_signal_irdb_snapshot_updated
+  - entity: button.ir_signal_refresh_irdb_snapshot
   - entity: sensor.ir_signal_protocol
   - entity: sensor.ir_signal_command
   - entity: select.ir_signal_decoder
 ```
+
+## IRDB matching and local labels
+
+On startup, the integration loads the saved snapshot first so Home Assistant is
+not blocked by a network request, then refreshes it in the background. Press
+**Refresh IRDB snapshot** whenever you want to force an update. A validated
+download is saved as `/config/ir_signal_analyzer/irdb.zip`; if GitHub is
+unavailable, the last valid copy remains active. The snapshot timestamp entity
+shows the modification time of that usable local copy.
+
+IRDB matches are candidates, not guaranteed identifications: NEC addresses are
+not globally unique, so one signal may match several products. A local learned
+entry keyed by signal fingerprint always takes priority. Create
+`/config/ir_signal_analyzer/codebook.json`, for example:
+
+```json
+{
+  "824e21a380d457f1": {
+    "label": "Living room TV / Power",
+    "manufacturer": "Hisense",
+    "device_type": "TV",
+    "model": "75E5N",
+    "function": "POWER",
+    "location": "Living room"
+  }
+}
+```
+
+After editing the file, press the refresh button to reload it. Matching order is
+local codebook, current online snapshot, then the local backup. Samsung and Sony
+waveform decoding are not implemented in this release; their raw signals remain
+available for replay and future decoding.
 
 To display the complete current signal (adjust the entity ID if Home Assistant
 assigned a suffix):
@@ -163,3 +212,5 @@ those signals if captures are truncated.
 - [Official XIAO IR Mate ESPHome configuration](https://github.com/esphome/infrared-proxies/blob/main/xiao-ir-mate/xiao-ir-mate.yaml)
 - [ESPHome remote receiver documentation](https://esphome.io/components/remote_receiver/)
 - [ESPHome Home Assistant event action](https://esphome.io/components/api/#homeassistantevent-action)
+- [IRDB](https://github.com/probonopd/irdb) - see
+  [IRDB attribution](IRDB_ATTRIBUTION.md)

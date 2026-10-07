@@ -18,6 +18,8 @@ from .const import (
     PLATFORMS,
     SIGNAL_UPDATE,
 )
+from .catalog import SignalInterpretation
+from .catalog_manager import CatalogManager
 from .decoder import DecodeResult, analyze, fingerprint, parse_raw
 
 
@@ -37,8 +39,14 @@ class IRSignalHub:
         self.entry = entry
         self.source_filter = str(entry.data.get(CONF_SOURCE, "")).strip()
         self.decoder = str(entry.options.get("decoder", DECODER_AUTO))
+        self.catalog = CatalogManager(hass)
         self.last_signal: CapturedSignal | None = None
+        self.last_interpretation: SignalInterpretation | None = None
+        self.last_unknown: SignalInterpretation | None = None
         self.last_error: str | None = None
+
+    async def async_initialize(self) -> None:
+        await self.catalog.async_initialize()
 
     @callback
     def handle_event(self, event: Event) -> None:
@@ -57,6 +65,7 @@ class IRSignalHub:
                 fingerprint=fingerprint(pulses),
                 analysis=analyze(pulses, self.decoder),
             )
+            self._update_interpretation()
             self.last_error = None
         except (TypeError, ValueError) as err:
             self.last_error = str(err)
@@ -72,15 +81,46 @@ class IRSignalHub:
         )
         if self.last_signal is not None:
             self.last_signal.analysis = analyze(self.last_signal.pulses, decoder)
+            self._update_interpretation()
         async_dispatcher_send(self.hass, f"{SIGNAL_UPDATE}_{self.entry.entry_id}")
+
+    async def async_refresh_catalog(self) -> None:
+        async_dispatcher_send(self.hass, f"{SIGNAL_UPDATE}_{self.entry.entry_id}")
+        await self.catalog.async_refresh()
+        self._update_interpretation()
+        async_dispatcher_send(self.hass, f"{SIGNAL_UPDATE}_{self.entry.entry_id}")
+
+    def _update_interpretation(self) -> None:
+        signal = self.last_signal
+        if signal is None:
+            return
+        interpretation = self.catalog.interpret(
+            protocol=signal.analysis.protocol,
+            status=signal.analysis.status,
+            fields=signal.analysis.fields,
+            fingerprint=signal.fingerprint,
+            raw=signal.raw,
+            pulse_count=len(signal.pulses),
+            source=signal.source,
+            received_at=signal.received_at.isoformat(),
+        )
+        self.last_interpretation = interpretation
+        if interpretation.unknown_state is not None:
+            self.last_unknown = interpretation
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hub = IRSignalHub(hass, entry)
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = hub
 
+    await hub.async_initialize()
     entry.async_on_unload(hass.bus.async_listen(EVENT_IR_RECEIVED, hub.handle_event))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    entry.async_create_background_task(
+        hass,
+        hub.async_refresh_catalog(),
+        "refresh IRDB snapshot",
+    )
     return True
 
 
@@ -89,4 +129,3 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unloaded:
         hass.data[DOMAIN].pop(entry.entry_id)
     return unloaded
-

@@ -14,6 +14,15 @@ Home Assistant Recorder 历史。即使连续按下同一个按键，接收时�
 - `sensor.ir_signal_command`：命令或数据值。
 - `sensor.ir_signal_data`：状态值直接显示 IR 数据。NEC 显示协议和完整编码，
   未识别信号显示 raw 时序；超过 255 字符时状态截断，完整 raw 保存在属性中。
+- `sensor.ir_signal_analysis`：显示本地学习码库或 IRDB 的最佳解析结果，属性中
+  包含厂商、设备类型、功能、候选项、未知字段和可用于重放的数据。
+- `sensor.ir_signal_unparsed_signal`：单独保留最近一次无法匹配或存在多个候选的
+  信号，方便后续继续分析。
+- `sensor.ir_signal_ir_database_status`：显示当前数据来源、缓存数量、错误信息和
+  本地学习码库状态。
+- `sensor.ir_signal_irdb_snapshot_updated`：显示当前离线 IRDB 快照的更新时间。
+- `button.ir_signal_refresh_irdb_snapshot`：手动下载并校验最新 IRDB 快照，同时
+  重新加载本地学习码库，并重新解析最近一次收到的信号。
 - `select.ir_signal_decoder`：选择 `auto`、`nec` 或 `raw`，选择后会立即按
   指定方式重新解析最近一次信号。
 
@@ -95,10 +104,44 @@ title: IR 信号分析器
 entities:
   - entity: sensor.ir_signal_last_received
   - entity: sensor.ir_signal_data
+  - entity: sensor.ir_signal_signal_analysis
+  - entity: sensor.ir_signal_unparsed_signal
+  - entity: sensor.ir_signal_ir_database_status
+  - entity: sensor.ir_signal_irdb_snapshot_updated
+  - entity: button.ir_signal_refresh_irdb_snapshot
   - entity: sensor.ir_signal_protocol
   - entity: sensor.ir_signal_command
   - entity: select.ir_signal_decoder
 ```
+
+## IRDB 匹配、离线快照和本地学习码库
+
+集成启动时先读取已经保存的快照，避免 HA 被网络下载阻塞，然后在后台尝试
+更新。需要强制更新时，按下 **Refresh IRDB snapshot** 按钮。下载内容通过
+校验后保存到 `/config/ir_signal_analyzer/irdb.zip`；GitHub 暂时不可访问时会
+继续使用最后一份有效快照。**IRDB snapshot updated** 实体显示的就是当前
+可用快照的保存时间。
+
+IRDB 的结果只能作为候选，不能保证唯一识别，因为 NEC 地址并非厂商全局唯一。
+若多个产品使用相同编码，分析实体会显示 `ambiguous` 并列出候选项。你确认设备
+后，可创建 `/config/ir_signal_analyzer/codebook.json`，以信号指纹保存本地结果：
+
+```json
+{
+  "824e21a380d457f1": {
+    "label": "客厅电视 / 电源",
+    "manufacturer": "Hisense",
+    "device_type": "TV",
+    "model": "75E5N",
+    "function": "POWER",
+    "location": "客厅"
+  }
+}
+```
+
+修改后按一次快照更新按钮即可重新加载。匹配优先级为：本地学习码库、当前在线
+下载的 IRDB 快照、离线备份。本版暂不适配 Samsung 和 Sony 波形解码，但仍会
+完整记录 raw 信号，供重放或以后增加解码器。
 
 ## 4. 用发送机重放监听到的信号
 
@@ -149,4 +192,6 @@ ESP32-C3 的 RMT 容量；若原始波形明显被截断，建议用 ESP32-S3 �
 
 参考：[官方 XIAO 配置](https://github.com/esphome/infrared-proxies/blob/main/xiao-ir-mate/xiao-ir-mate.yaml)、
 [Remote Receiver](https://esphome.io/components/remote_receiver/)、
-[Home Assistant Event](https://esphome.io/components/api/#homeassistantevent-action)。
+[Home Assistant Event](https://esphome.io/components/api/#homeassistantevent-action)、
+[IRDB](https://github.com/probonopd/irdb)。IRDB 归属和许可说明见
+[IRDB_ATTRIBUTION.md](IRDB_ATTRIBUTION.md)。
