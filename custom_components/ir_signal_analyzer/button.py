@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import IRSignalHub
-from .const import DOMAIN
+from .const import DOMAIN, TCL_TEST_AUXILIARY_HEAT, TCL_TEST_MODE
 from .entity import IRSignalEntity
 
 
@@ -24,6 +24,7 @@ async def async_setup_entry(
             IRDBRefreshButton(entry, hub),
             TCLCaptureValidationButton(entry, hub),
             TCLSendGeneratedTestButton(entry, hub),
+            TCLAuxiliaryHeatButton(entry, hub),
         ]
     )
 
@@ -63,3 +64,19 @@ class TCLSendGeneratedTestButton(IRSignalEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         await self.hub.async_send_generated_test()
+
+
+class TCLAuxiliaryHeatButton(IRSignalEntity, ButtonEntity):
+    """One-shot control that enables auxiliary heat and transmits the state."""
+
+    _attr_translation_key = "tcl_auxiliary_heat"
+    _attr_icon = "mdi:radiator"
+
+    def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
+        super().__init__(entry, hub)
+        self._attr_unique_id = f"{entry.entry_id}_tcl_auxiliary_heat_button"
+
+    async def async_press(self) -> None:
+        self.hub.set_tcl_test_parameter(TCL_TEST_MODE, "heat")
+        self.hub.set_tcl_test_parameter(TCL_TEST_AUXILIARY_HEAT, True)
+        await self.hub.async_send_current_tcl()

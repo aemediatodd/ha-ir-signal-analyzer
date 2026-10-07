@@ -98,6 +98,7 @@
       "refresh_irdb_snapshot": { "name": "更新 IRDB 快照" },
       "tcl_capture_validation": { "name": "等待原遥控器样本" },
       "tcl_send_generated_test": { "name": "发送编码测试" }
+      ,"tcl_auxiliary_heat": { "name": "开启辅热" }
     },
     "number": {
       "two_frame_remote_interval": { "name": "发送2帧间隔" },

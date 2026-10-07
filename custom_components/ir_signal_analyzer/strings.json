@@ -98,6 +98,7 @@
       "refresh_irdb_snapshot": { "name": "Refresh IRDB snapshot" },
       "tcl_capture_validation": { "name": "Wait for original remote sample" },
       "tcl_send_generated_test": { "name": "Send encoded test" }
+      ,"tcl_auxiliary_heat": { "name": "Enable auxiliary heat" }
     },
     "number": {
       "two_frame_remote_interval": { "name": "Remote 2-frame interval" },
