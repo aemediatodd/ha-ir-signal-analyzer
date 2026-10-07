@@ -102,16 +102,23 @@ def encode_tcl112ac(
     fan = str(fan_step).lower()
     if fan not in FAN_NATIVE_CODES:
         raise ValueError("fan_step must be auto or an integer from 0 to 6")
-    if soft_wind and fan != "5":
-        raise ValueError("soft_wind is validated only with fan_step 5")
-    if sleep and soft_wind:
-        raise ValueError("sleep and soft_wind cannot be enabled together")
+    soft_sleep = sleep and soft_wind
+    if soft_sleep and fan != "auto":
+        raise ValueError("soft_wind with sleep is validated only with automatic fan")
+    if soft_sleep and (swing_vertical or swing_horizontal):
+        raise ValueError("soft_wind with sleep and swing is not yet validated")
+    if soft_wind and not sleep and fan != "5":
+        raise ValueError("soft_wind without sleep is validated only with fan_step 5")
 
     # Type 2 tells the appliance which physical remote command was selected.
     special = [0x23, 0xCB, 0x26, 0x02, 0x00, 0x40, 0x00, 0x00, 0x83, 0, 0, 0, 0, 0]
     if fan == "0" and not sleep:
         special[5] = 0x60
-    special[6] = 0xC0 if sleep else (0xD0 if soft_wind else FAN_SPECIAL_PARAMETERS[fan])
+    special[6] = (
+        0x30
+        if soft_sleep
+        else (0xC0 if sleep else (0xD0 if soft_wind else FAN_SPECIAL_PARAMETERS[fan]))
+    )
     if swing_vertical:
         special[7] |= 0x08
     if swing_horizontal:
@@ -123,7 +130,7 @@ def encode_tcl112ac(
     if power:
         normal[5] |= 0x04
     normal[6] = MODE_CODES[mode]
-    if sleep or fan == "6":
+    if (sleep and not soft_sleep) or fan == "6":
         normal[6] |= 0x40
 
     half_degrees = int(round(temperature * 2))

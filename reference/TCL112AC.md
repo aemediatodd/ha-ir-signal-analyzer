@@ -41,6 +41,13 @@ produce native fan code 2, while steps 4 and 5 both produce code 5. Consumers
 that need exact remote-button semantics should preserve and replay both frames
 in their observed order.
 
+The captured combination "cool, 24 C, automatic fan, soft wind, sleep" uses
+special bytes `40 30 00` and a normal-frame fan code of 1. This differs from
+soft wind alone (`40 D0 xx`) and from the earlier sleep/display-off sample
+(`40 C0 08` plus the normal-frame feature flag). The encoder therefore treats
+automatic-fan soft-wind sleep as its own observed command rather than inferring
+it from either feature independently.
+
 ## Paired-frame timing
 
 Eight Home Assistant observations measured the interval from the received

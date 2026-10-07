@@ -154,6 +154,19 @@ class DecoderTests(unittest.TestCase):
         self.assertNotIn("Power off", result.fields["summary"])
         self.assertTrue(result.fields["checksum_valid"])
 
+    def test_tcl112ac_auto_soft_wind_sleep_command(self):
+        values = list(bytes.fromhex("23CB260200403000830000000018"))
+        result = decoder.analyze(tcl112_signal(values), "auto")
+
+        self.assertEqual(
+            result.fields["observed_command"],
+            "automatic_fan_soft_wind_sleep",
+        )
+        self.assertEqual(
+            result.fields["fan_request"], "automatic_soft_wind_sleep"
+        )
+        self.assertTrue(result.fields["checksum_valid"])
+
     def test_all_observed_tcl112ac_pairs_decode_and_validate(self):
         fixture_path = (
             Path(__file__).parents[1]

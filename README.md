@@ -147,7 +147,9 @@ data:
 Modes are `auto`, `cool`, `heat`, `dry`, and `fan_only`; temperature is 16-31 C
 in 0.5 C steps; fan step is `auto` or remote steps 0-6. Omitting `delay_ms`
 uses the configured Remote 2-frame interval. Soft wind is restricted to the
-observed fan-step-5 combination, and sleep cannot be combined with soft wind.
+observed fan-step-5 combination when used alone. The captured combined
+soft-wind and sleep command uses automatic fan with both swing modes disabled;
+other unobserved conflicting combinations are rejected.
 
 ## TCL validation workbench
 

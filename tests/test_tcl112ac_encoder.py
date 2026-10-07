@@ -30,6 +30,7 @@ class Tcl112AcEncoderTests(unittest.TestCase):
             ({"fan_step": 5, "swing_horizontal": True}, "0x23CB26020040C090830000000038", "0x23CB2601002403070500000088D0"),
             ({"fan_step": 4, "swing_vertical": True}, "0x23CB26020040A008830000000090", "0x23CB2601002403073D0000008000"),
             ({"fan_step": 4, "sleep": True, "swing_vertical": True}, "0x23CB26020040C0088300000000B0", "0x23CB26010024430739000000803C"),
+            ({"fan_step": "auto", "soft_wind": True, "sleep": True}, "0x23CB260200403000830000000018", "0x23CB2601002403070100000080C4"),
         ]
         for options, special_hex, normal_hex in cases:
             with self.subTest(options=options):
@@ -88,6 +89,13 @@ class Tcl112AcEncoderTests(unittest.TestCase):
             encoder.encode_tcl112ac(fan_step=4, soft_wind=True)
         with self.assertRaises(ValueError):
             encoder.encode_tcl112ac(fan_step=5, soft_wind=True, sleep=True)
+        with self.assertRaises(ValueError):
+            encoder.encode_tcl112ac(
+                fan_step="auto",
+                soft_wind=True,
+                sleep=True,
+                swing_horizontal=True,
+            )
 
     def test_frame_byte_differences_identifies_frame_and_byte(self):
         differences = encoder.frame_byte_differences(

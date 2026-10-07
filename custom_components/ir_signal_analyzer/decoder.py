@@ -316,6 +316,7 @@ def _decode_tcl112ac_special(values: list[int]) -> dict[str, Any]:
     """Describe a TCL type-2 command frame without treating it as power-off."""
     special_bytes = f"{values[5]:02X}{values[6]:02X}{values[7]:02X}"
     observed_command = {
+        "403000": "automatic_fan_soft_wind_sleep",
         "40D090": "soft_wind_horizontal_swing",
         "40C090": "fan_step_5_horizontal_swing",
         "40C000": "fan_step_5_or_turbo",
@@ -334,6 +335,7 @@ def _decode_tcl112ac_special(values: list[int]) -> dict[str, Any]:
     else:
         fan_request = {
             0x20: "auto",
+            0x30: "automatic_soft_wind_sleep",
             0x40: "step_1",
             0x60: "step_2",
             0x80: "step_3",
