@@ -29,6 +29,11 @@ Home Assistant Recorder 历史。即使连续按下同一个按键，接收时�
 `auto` 当前识别 NEC。未知协议不会丢弃，完整原始脉冲仍会记录，可在以后
 增加解码器后二次分析。
 
+从 `v1.1.2` 起，raw 指纹按脉冲波形类别生成，不再直接对微秒数做固定取整。
+同一按键因接收器产生的小幅时序抖动会得到相同指纹，不同高低脉冲序列仍会
+区分。属性中的 `legacy_fingerprint` 保留旧算法结果，已有 `codebook.json`
+无需迁移，集成会自动使用旧键回退匹配。
+
 ## 1. 分别刷入两份 ESPHome 固件
 
 - 长期监听机：`esphome/xiao-ir-mate-listener.yaml`，节点名为

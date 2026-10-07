@@ -20,7 +20,7 @@ from .const import (
 )
 from .catalog import SignalInterpretation
 from .catalog_manager import CatalogManager
-from .decoder import DecodeResult, analyze, fingerprint, parse_raw
+from .decoder import DecodeResult, analyze, fingerprint, legacy_fingerprint, parse_raw
 
 
 @dataclass
@@ -30,6 +30,7 @@ class CapturedSignal:
     raw: str
     pulses: list[int]
     fingerprint: str
+    legacy_fingerprint: str
     analysis: DecodeResult
     device_sequence: int | None = None
     device_uptime_ms: int | None = None
@@ -65,6 +66,7 @@ class IRSignalHub:
                 raw=raw,
                 pulses=pulses,
                 fingerprint=fingerprint(pulses),
+                legacy_fingerprint=legacy_fingerprint(pulses),
                 analysis=analyze(pulses, self.decoder),
                 device_sequence=_optional_int(event.data.get("capture_sequence")),
                 device_uptime_ms=_optional_int(event.data.get("device_uptime_ms")),
@@ -103,6 +105,7 @@ class IRSignalHub:
             status=signal.analysis.status,
             fields=signal.analysis.fields,
             fingerprint=signal.fingerprint,
+            legacy_fingerprint=signal.legacy_fingerprint,
             raw=signal.raw,
             pulse_count=len(signal.pulses),
             source=signal.source,

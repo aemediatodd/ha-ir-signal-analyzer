@@ -121,6 +121,25 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(result.attributes["match_source"], "local_codebook")
         self.assertEqual(result.attributes["confidence"], "confirmed")
 
+    def test_legacy_fingerprint_still_matches_local_codebook(self):
+        result = catalog.interpret_signal(
+            protocol="unknown",
+            status="unrecognized",
+            fields={},
+            fingerprint="new-shape-key",
+            fingerprint_aliases=("old-timing-key",),
+            raw="500,-500",
+            pulse_count=2,
+            source="listener",
+            received_at="2026-10-07T10:00:00+00:00",
+            records={},
+            local_codes={"old-timing-key": {"label": "Existing learned button"}},
+            database_source="irdb_online",
+        )
+
+        self.assertEqual(result.state, "Existing learned button")
+        self.assertEqual(result.attributes["local_codebook_key"], "old-timing-key")
+
     def test_unmatched_nec_is_retained(self):
         result = interpret({})
         self.assertEqual(result.attributes["match_status"], "unmatched")

@@ -111,6 +111,7 @@ def interpret_signal(
     records: dict[tuple[int, int, int], list[dict[str, Any]]],
     local_codes: dict[str, dict[str, Any]],
     database_source: str,
+    fingerprint_aliases: tuple[str, ...] = (),
 ) -> SignalInterpretation:
     """Interpret one decoded signal using local labels and the IRDB index."""
     replay = _replay_payload(protocol, status, fields, raw)
@@ -120,12 +121,20 @@ def interpret_signal(
         "protocol": protocol,
         "decode_status": status,
         "fingerprint": fingerprint,
+        "legacy_fingerprints": list(fingerprint_aliases),
         "pulse_count": pulse_count,
         "raw": raw,
         "replay": replay,
     }
 
-    local = local_codes.get(fingerprint)
+    local_key = fingerprint
+    local = local_codes.get(local_key)
+    if local is None:
+        for alias in fingerprint_aliases:
+            if alias in local_codes:
+                local_key = alias
+                local = local_codes[alias]
+                break
     if local is not None:
         candidates = _find_candidates(protocol, status, fields, records)
         label = str(local.get("label") or _candidate_label(local) or fingerprint)
@@ -139,6 +148,7 @@ def interpret_signal(
             "model": local.get("model"),
             "function": local.get("function"),
             "local_label": label,
+            "local_codebook_key": local_key,
             "known_fields": fields,
             "unknown_fields": [],
             "irdb_candidate_count": len(candidates),

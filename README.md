@@ -203,6 +203,10 @@ content: |-
 - `raw` performs no protocol decoding but still records the complete waveform.
 - Unknown signals are retained with a stable SHA-256-derived fingerprint, so a
   decoder can be added later without recapturing the remote.
+- Since `v1.1.2`, raw fingerprints hash timing-cluster shapes rather than fixed
+  microsecond rounding. Small receiver jitter therefore keeps the same key,
+  while different pulse patterns remain distinct. `legacy_fingerprint` is
+  retained as a compatibility key for existing local codebooks.
 
 The XIAO IR Mate receiver is a demodulating receiver intended mainly for 38 kHz
 IR. It cannot truly capture every carrier frequency. Long air-conditioner frames

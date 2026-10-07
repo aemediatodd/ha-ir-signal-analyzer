@@ -50,9 +50,49 @@ def parse_raw(raw: str | list[int] | tuple[int, ...]) -> list[int]:
 
 
 def fingerprint(pulses: list[int]) -> str:
-    """Return a stable fingerprint after modest timing quantization."""
+    """Return a stable fingerprint from pulse-shape classes.
+
+    IR receivers introduce enough jitter for fixed-width rounding boundaries to
+    change between captures. Rank timing clusters separately for marks and
+    spaces so the fingerprint represents the encoded shape instead of exact
+    microseconds.
+    """
+    centers = {
+        1: _timing_centers(value for value in pulses if value > 0),
+        -1: _timing_centers(-value for value in pulses if value < 0),
+    }
+    tokens = []
+    for value in pulses:
+        sign = 1 if value > 0 else -1
+        timings = centers[sign]
+        cluster = min(
+            range(len(timings)),
+            key=lambda index: abs(abs(value) - timings[index]),
+        )
+        tokens.append(f"{'m' if sign > 0 else 's'}{cluster}")
+    shape = f"{len(pulses)}|" + ",".join(tokens)
+    return hashlib.sha256(shape.encode("ascii")).hexdigest()[:16]
+
+
+def legacy_fingerprint(pulses: list[int]) -> str:
+    """Return the pre-1.1.2 fingerprint for local-codebook compatibility."""
     quantized = ",".join(str(round(value / 50) * 50) for value in pulses)
     return hashlib.sha256(quantized.encode("ascii")).hexdigest()[:16]
+
+
+def _timing_centers(values) -> list[float]:
+    ordered = sorted(abs(value) for value in values)
+    if not ordered:
+        return [0.0]
+
+    clusters: list[list[int]] = [[ordered[0]]]
+    for value in ordered[1:]:
+        center = sum(clusters[-1]) / len(clusters[-1])
+        if value / center >= 1.6:
+            clusters.append([value])
+        else:
+            clusters[-1].append(value)
+    return [sum(cluster) / len(cluster) for cluster in clusters]
 
 
 def _matches(value: int, expected: int, tolerance: float = DEFAULT_TOLERANCE) -> bool:
