@@ -53,6 +53,10 @@ special bytes `60 40 08` and normal bytes with fan/swing `0x39` but without the
 normal-frame `0x40` feature flag. Sleep-related bits are therefore selected by
 the validated command combination, not by a universal sleep bit assumption.
 
+The captured `40 30 98` special frame is the soft-wind/sleep combination with
+both vertical and horizontal swing enabled. Its normal frame uses fan code 1,
+vertical swing code 7, and the horizontal swing bit.
+
 ## Paired-frame timing
 
 Eight Home Assistant observations measured the interval from the received

@@ -317,6 +317,7 @@ def _decode_tcl112ac_special(values: list[int]) -> dict[str, Any]:
     special_bytes = f"{values[5]:02X}{values[6]:02X}{values[7]:02X}"
     observed_command = {
         "403000": "automatic_fan_soft_wind_sleep",
+        "403098": "automatic_fan_soft_wind_sleep_both_swing",
         "40D090": "soft_wind_horizontal_swing",
         "40C090": "fan_step_5_horizontal_swing",
         "40C000": "fan_step_5_or_turbo",

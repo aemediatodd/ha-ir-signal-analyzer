@@ -105,8 +105,6 @@ def encode_tcl112ac(
     soft_sleep = sleep and soft_wind
     if soft_sleep and fan != "auto":
         raise ValueError("soft_wind with sleep is validated only with automatic fan")
-    if soft_sleep and (swing_vertical or swing_horizontal):
-        raise ValueError("soft_wind with sleep and swing is not yet validated")
     if soft_wind and not sleep and fan != "5":
         raise ValueError("soft_wind without sleep is validated only with fan_step 5")
 
