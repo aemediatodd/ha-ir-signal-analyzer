@@ -111,6 +111,8 @@
       "tcl_test_vertical_swing": { "name": "TCL 测试上下风" },
       "tcl_test_horizontal_swing": { "name": "TCL 测试左右风" },
       "tcl_test_auxiliary_heat": { "name": "TCL 测试辅热" }
+      ,"tcl_advanced_sleep": { "name": "TCL-高级 睡眠" }
+      ,"tcl_advanced_soft_wind": { "name": "TCL-高级 柔风" }
     }
   }
 }

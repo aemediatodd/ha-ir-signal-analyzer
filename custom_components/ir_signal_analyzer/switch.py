@@ -59,6 +59,16 @@ async def async_setup_entry(
                 "tcl_test_auxiliary_heat",
                 "mdi:radiator",
             ),
+            TCLAdvancedFeatureSwitch(
+                entry, hub, TCL_TEST_SLEEP, "tcl_advanced_sleep", "mdi:sleep"
+            ),
+            TCLAdvancedFeatureSwitch(
+                entry,
+                hub,
+                TCL_TEST_SOFT_WIND,
+                "tcl_advanced_soft_wind",
+                "mdi:weather-windy",
+            ),
         ]
     )
 
@@ -94,6 +104,20 @@ class TCLTestSwitch(IRSignalEntity, SwitchEntity):
         if self._parameter_key == TCL_TEST_AUXILIARY_HEAT:
             return mode == "heat"
         return True
+
+    async def async_turn_on(self, **kwargs) -> None:
+        self.hub.set_tcl_test_parameter(self._parameter_key, True)
+
+    async def async_turn_off(self, **kwargs) -> None:
+        self.hub.set_tcl_test_parameter(self._parameter_key, False)
+
+
+class TCLAdvancedFeatureSwitch(TCLTestSwitch):
+    """Independently control and immediately transmit an advanced feature."""
+
+    def __init__(self, entry, hub, parameter_key, translation_key, icon) -> None:
+        super().__init__(entry, hub, parameter_key, translation_key, icon)
+        self._attr_unique_id = f"{entry.entry_id}_{parameter_key}_advanced"
 
     async def async_turn_on(self, **kwargs) -> None:
         self.hub.set_tcl_test_parameter(self._parameter_key, True)

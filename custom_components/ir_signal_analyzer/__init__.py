@@ -269,6 +269,8 @@ class IRSignalHub:
         if key == TCL_TEST_AUXILIARY_HEAT and value:
             self.tcl_test_state[TCL_TEST_MODE] = "heat"
             mode = "heat"
+        if mode != "heat":
+            self.tcl_test_state[TCL_TEST_AUXILIARY_HEAT] = False
         if mode in {"auto", "dry", "fan_only"}:
             self.tcl_test_state[TCL_TEST_FAN_STEP] = "auto" if mode != "dry" else "1"
             self.tcl_test_state[TCL_TEST_SOFT_WIND] = False

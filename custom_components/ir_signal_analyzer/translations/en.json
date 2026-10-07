@@ -111,6 +111,8 @@
       "tcl_test_vertical_swing": { "name": "TCL test vertical swing" },
       "tcl_test_horizontal_swing": { "name": "TCL test horizontal swing" },
       "tcl_test_auxiliary_heat": { "name": "TCL test auxiliary heat" }
+      ,"tcl_advanced_sleep": { "name": "TCL-Advanced sleep" }
+      ,"tcl_advanced_soft_wind": { "name": "TCL-Advanced soft wind" }
     }
   }
 }

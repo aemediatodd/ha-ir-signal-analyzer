@@ -72,4 +72,3 @@ class TCLTestTemperatureNumber(IRSignalEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         self.hub.set_tcl_test_parameter(TCL_TEST_TEMPERATURE, round(value * 2) / 2)
-        await self.hub.async_send_current_tcl()

@@ -27,6 +27,8 @@ class Tcl112AcEncoderTests(unittest.TestCase):
         cases = [
             ({"fan_step": 5}, "0x23CB26020040C0008300000000A8", "0x23CB2601002403070500000080C8"),
             ({"fan_step": 5, "soft_wind": True, "swing_horizontal": True}, "0x23CB26020040D090830000000048", "0x23CB2601002403070500000088D0"),
+            ({"fan_step": 5, "soft_wind": True}, "0x23CB26020040D0008300000000B8", "0x23CB2601002403070500000080C8"),
+            ({"fan_step": "auto", "sleep": True}, "0x23CB260200402000830000000008", "0x23CB2601002403070100000080C4"),
             ({"fan_step": 5, "swing_horizontal": True}, "0x23CB26020040C090830000000038", "0x23CB2601002403070500000088D0"),
             ({"fan_step": 4, "swing_vertical": True}, "0x23CB26020040A008830000000090", "0x23CB2601002403073D0000008000"),
             ({"fan_step": 4, "sleep": True, "swing_vertical": True}, "0x23CB26020040C0088300000000B0", "0x23CB26010024430739000000803C"),

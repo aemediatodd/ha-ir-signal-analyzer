@@ -73,7 +73,6 @@ class TCLTestModeSelect(IRSignalEntity, SelectEntity):
         if option not in TCL_TEST_MODE_OPTIONS:
             raise ValueError(f"Unsupported TCL mode: {option}")
         self.hub.set_tcl_test_parameter(TCL_TEST_MODE, option)
-        await self.hub.async_send_current_tcl()
 
 
 class TCLTestFanStepSelect(IRSignalEntity, SelectEntity):
@@ -102,7 +101,6 @@ class TCLTestFanStepSelect(IRSignalEntity, SelectEntity):
         if option not in TCL_TEST_FAN_OPTIONS:
             raise ValueError(f"Unsupported TCL fan step: {option}")
         self.hub.set_tcl_test_parameter(TCL_TEST_FAN_STEP, option)
-        await self.hub.async_send_current_tcl()
 
 
 class TCLRemoteProfileSelect(IRSignalEntity, SelectEntity):
