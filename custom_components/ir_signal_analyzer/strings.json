@@ -99,6 +99,7 @@
       "tcl_capture_validation": { "name": "Wait for original remote sample" },
       "tcl_send_generated_test": { "name": "Send encoded test" }
       ,"tcl_auxiliary_heat": { "name": "Enable auxiliary heat" }
+      ,"tcl_export_validated": { "name": "Export validated combinations" }
     },
     "number": {
       "two_frame_remote_interval": { "name": "Remote 2-frame interval" },

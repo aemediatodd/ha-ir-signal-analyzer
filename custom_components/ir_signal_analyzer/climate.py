@@ -41,6 +41,7 @@ class TCLAdvancedClimate(IRSignalEntity, ClimateEntity):
         | ClimateEntityFeature.TARGET_TEMPERATURE
         | ClimateEntityFeature.FAN_MODE
         | ClimateEntityFeature.SWING_MODE
+        | ClimateEntityFeature.PRESET_MODE
     )
 
     def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
@@ -85,6 +86,27 @@ class TCLAdvancedClimate(IRSignalEntity, ClimateEntity):
     def swing_modes(self):
         return ["off", "vertical", "horizontal", "both"]
 
+    @property
+    def preset_mode(self):
+        state = self.hub.tcl_test_state
+        if state[TCL_TEST_SLEEP] and state[TCL_TEST_SOFT_WIND]:
+            return "soft_wind_sleep"
+        if state[TCL_TEST_SLEEP]:
+            return "sleep"
+        if state[TCL_TEST_SOFT_WIND]:
+            return "soft_wind"
+        return "none"
+
+    @property
+    def preset_modes(self):
+        mode = self.hub.tcl_test_state[TCL_TEST_MODE]
+        presets = ["none"]
+        if mode not in {"auto", "dry", "fan_only"}:
+            presets.extend(["sleep", "soft_wind_sleep"])
+            if not self.hub.tcl_test_state[TCL_TEST_AUXILIARY_HEAT]:
+                presets.append("soft_wind")
+        return presets
+
     async def async_set_hvac_mode(self, hvac_mode) -> None:
         if hvac_mode == HVACMode.OFF:
             self.hub.set_tcl_test_parameter(TCL_TEST_POWER, False)
@@ -108,4 +130,11 @@ class TCLAdvancedClimate(IRSignalEntity, ClimateEntity):
             raise ValueError(f"Unsupported swing mode: {swing_mode}")
         self.hub.set_tcl_test_parameter(TCL_TEST_SWING_VERTICAL, swing_mode in {"vertical", "both"})
         self.hub.set_tcl_test_parameter(TCL_TEST_SWING_HORIZONTAL, swing_mode in {"horizontal", "both"})
+        await self.hub.async_send_current_tcl()
+
+    async def async_set_preset_mode(self, preset_mode) -> None:
+        if preset_mode not in self.preset_modes:
+            raise ValueError(f"Unsupported preset: {preset_mode}")
+        self.hub.set_tcl_test_parameter(TCL_TEST_SLEEP, preset_mode in {"sleep", "soft_wind_sleep"})
+        self.hub.set_tcl_test_parameter(TCL_TEST_SOFT_WIND, preset_mode in {"soft_wind", "soft_wind_sleep"})
         await self.hub.async_send_current_tcl()

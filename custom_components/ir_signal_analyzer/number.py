@@ -54,6 +54,7 @@ class TCLPairDelayNumber(IRSignalEntity, NumberEntity):
 
 
 class TCLTestTemperatureNumber(IRSignalEntity, NumberEntity):
+    _attr_entity_category = EntityCategory.CONFIG
     _attr_translation_key = "tcl_test_temperature"
     _attr_icon = "mdi:thermometer"
     _attr_native_min_value = 16

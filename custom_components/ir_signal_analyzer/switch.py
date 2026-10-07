@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -74,6 +75,7 @@ async def async_setup_entry(
 
 
 class TCLTestSwitch(IRSignalEntity, SwitchEntity):
+    _attr_entity_category = EntityCategory.CONFIG
     def __init__(
         self,
         entry: ConfigEntry,

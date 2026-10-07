@@ -648,6 +648,11 @@ class IRSignalHub:
 
             await self.hass.async_add_executor_job(_save)
 
+    async def async_export_validated_combinations(self) -> None:
+        """Rewrite the validated combination JSON for manual export/viewing."""
+        await self._async_save_validated_combinations()
+        async_dispatcher_send(self.hass, f"{SIGNAL_UPDATE}_{self.entry.entry_id}")
+
     @callback
     def _cancel_validation_timeout(self) -> None:
         if self._validation_timeout_cancel is not None:

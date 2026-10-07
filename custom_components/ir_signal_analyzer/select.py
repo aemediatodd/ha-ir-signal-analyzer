@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from homeassistant.components.select import SelectEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -59,6 +60,7 @@ class IRDecoderSelect(IRSignalEntity, SelectEntity):
 class TCLTestModeSelect(IRSignalEntity, SelectEntity):
     _attr_translation_key = "tcl_test_mode"
     _attr_icon = "mdi:air-conditioner"
+    _attr_entity_category = EntityCategory.CONFIG
     _attr_options = TCL_TEST_MODE_OPTIONS
 
     def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
@@ -78,6 +80,7 @@ class TCLTestModeSelect(IRSignalEntity, SelectEntity):
 class TCLTestFanStepSelect(IRSignalEntity, SelectEntity):
     _attr_translation_key = "tcl_test_fan_step"
     _attr_icon = "mdi:fan"
+    _attr_entity_category = EntityCategory.CONFIG
     _attr_options = TCL_TEST_FAN_OPTIONS
 
     def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:

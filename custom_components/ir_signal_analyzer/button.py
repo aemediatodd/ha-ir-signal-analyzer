@@ -25,6 +25,7 @@ async def async_setup_entry(
             TCLCaptureValidationButton(entry, hub),
             TCLSendGeneratedTestButton(entry, hub),
             TCLAuxiliaryHeatButton(entry, hub),
+            TCLExportValidatedButton(entry, hub),
         ]
     )
 
@@ -45,6 +46,7 @@ class IRDBRefreshButton(IRSignalEntity, ButtonEntity):
 class TCLCaptureValidationButton(IRSignalEntity, ButtonEntity):
     _attr_translation_key = "tcl_capture_validation"
     _attr_icon = "mdi:remote"
+    _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
         super().__init__(entry, hub)
@@ -57,6 +59,7 @@ class TCLCaptureValidationButton(IRSignalEntity, ButtonEntity):
 class TCLSendGeneratedTestButton(IRSignalEntity, ButtonEntity):
     _attr_translation_key = "tcl_send_generated_test"
     _attr_icon = "mdi:send"
+    _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
         super().__init__(entry, hub)
@@ -80,3 +83,16 @@ class TCLAuxiliaryHeatButton(IRSignalEntity, ButtonEntity):
         self.hub.set_tcl_test_parameter(TCL_TEST_MODE, "heat")
         self.hub.set_tcl_test_parameter(TCL_TEST_AUXILIARY_HEAT, True)
         await self.hub.async_send_current_tcl()
+
+
+class TCLExportValidatedButton(IRSignalEntity, ButtonEntity):
+    _attr_translation_key = "tcl_export_validated"
+    _attr_icon = "mdi:export"
+    _attr_entity_category = EntityCategory.CONFIG
+
+    def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
+        super().__init__(entry, hub)
+        self._attr_unique_id = f"{entry.entry_id}_tcl_export_validated"
+
+    async def async_press(self) -> None:
+        await self.hub.async_export_validated_combinations()
