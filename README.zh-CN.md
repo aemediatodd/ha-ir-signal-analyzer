@@ -77,11 +77,18 @@ ota_password: "OTA 密码"
 **允许设备执行 Home Assistant 操作**。否则设备不能发送
 `esphome.ir_received` 事件。
 
-监听机对每个 `on_raw` 信号上报完整的正负微秒脉冲；发送机只提供官方
-`IR Proxy Transmitter` 实体和两个发送动作，不会上报接收事件：
+监听机对每个 `on_raw` 信号上报完整的正负微秒脉冲；发送机提供官方
+`IR Proxy Transmitter`、`TCL Air Conditioner` 实体和三个发送动作，
+不会上报接收事件：
 
 - `esphome.xiao_ir_transmitter_send_raw`
 - `esphome.xiao_ir_transmitter_send_nec`
+- `esphome.xiao_ir_transmitter_send_raw_pair`：由 XIAO 本地按指定毫秒间隔
+  发送两帧，避免 HA 或 Wi-Fi 调度改变 TCL 双帧间隔。
+
+`TCL Air Conditioner` 用于开关、模式、温度、自动/低/中/高风和上下摆风。
+精细风速、柔风、左右风和睡眠等功能继续使用双帧动作。可直接导入的 HA
+脚本位于 `examples/ha-script-send-latest-tcl112ac.yaml`。
 
 监听固件使用 1 ms API 批处理、ESP32 推荐的 8 条发送队列，并关闭协议全量
 日志，避免连续按键时累积几十秒的旧事件。`Last received` 属性中的

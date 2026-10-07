@@ -37,6 +37,22 @@ api:
             address: !lambda return address;
             command: !lambda return command;
 
+    # Send a TCL command frame and full-state frame with device-local timing.
+    - action: send_raw_pair
+      variables:
+        first_code: int[]
+        second_code: int[]
+        delay_ms: int
+        carrier_frequency: float
+      then:
+        - remote_transmitter.transmit_raw:
+            code: !lambda return first_code;
+            carrier_frequency: !lambda return carrier_frequency;
+        - delay: !lambda return delay_ms;
+        - remote_transmitter.transmit_raw:
+            code: !lambda return second_code;
+            carrier_frequency: !lambda return carrier_frequency;
+
 ota:
   - platform: esphome
     password: !secret ota_password
@@ -59,6 +75,15 @@ remote_transmitter:
   pin: GPIO3
   carrier_duty_percent: 50%
   non_blocking: true
+
+# Official ESPHome TCL112 controller for basic power, mode, temperature, fan,
+# and vertical-swing control. Advanced features use send_raw_pair above.
+climate:
+  - platform: tcl112
+    name: TCL Air Conditioner
+    transmitter_id: ir_tx
+    supports_heat: true
+    supports_cool: true
 
 infrared:
   - platform: ir_rf_proxy

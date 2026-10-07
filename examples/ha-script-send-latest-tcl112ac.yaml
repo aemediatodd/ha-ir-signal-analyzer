@@ -1,0 +1,29 @@
+alias: 发送最近捕获的 TCL112AC 双帧
+description: 按设备端定时间隔重放最近关联的 TCL 命令帧和完整状态帧。
+mode: single
+
+sequence:
+  - variables:
+      # Replace these two IDs with the IDs shown in Developer Tools > States.
+      last_received_entity: sensor.ir_signal_analyzer_last_received
+      interval_entity: number.ir_signal_analyzer_remote_2_frame_interval
+      decoded: >-
+        {{ state_attr(last_received_entity, 'decoded') or {} }}
+      frames: >-
+        {{ decoded.get('replay_sequence', []) }}
+      gap_ms: >-
+        {{ states(interval_entity) | int(190) }}
+
+  - condition: template
+    value_template: >-
+      {{ frames is list and frames | count == 2
+         and frames[0].get('raw') and frames[1].get('raw') }}
+
+  - action: esphome.xiao_ir_transmitter_send_raw_pair
+    data:
+      first_code: >-
+        {{ frames[0]['raw'].split(',') | map('int') | list }}
+      second_code: >-
+        {{ frames[1]['raw'].split(',') | map('int') | list }}
+      delay_ms: "{{ gap_ms }}"
+      carrier_frequency: 38000

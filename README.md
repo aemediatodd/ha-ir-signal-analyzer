@@ -113,6 +113,11 @@ in progress. Position it so that it sees the room but is not directly saturated
 by the main transmitter. The transmitter firmware does not enable its receiver,
 so it cannot create duplicate listening events.
 
+The transmitter also exposes ESPHome's official `TCL Air Conditioner` climate
+entity for basic controls and a device-timed `send_raw_pair` action for advanced
+TCL command/state pairs. An importable Home Assistant script is provided at
+`examples/ha-script-send-latest-tcl112ac.yaml`.
+
 ## 3. Verify reception
 
 Open **Developer tools > Events**, listen for `esphome.ir_received`, and press a
