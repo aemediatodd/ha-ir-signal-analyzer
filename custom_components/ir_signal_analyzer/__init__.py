@@ -166,6 +166,7 @@ class IRSignalHub:
                 device_uptime_ms=_optional_int(event.data.get("device_uptime_ms")),
             )
             self._link_tcl_frames(captured)
+            self._sync_tcl_state_from_received(captured)
             self.last_signal = captured
             self._update_interpretation()
             self.last_error = None
@@ -173,6 +174,41 @@ class IRSignalHub:
             self.last_error = str(err)
 
         async_dispatcher_send(self.hass, f"{SIGNAL_UPDATE}_{self.entry.entry_id}")
+
+    @callback
+    def _sync_tcl_state_from_received(self, signal: CapturedSignal) -> None:
+        """Mirror received TCL state into the climate workbench without sending."""
+        fields = signal.analysis.fields
+        if signal.analysis.protocol != "tcl112ac" or fields.get("message_type") != "normal":
+            return
+        mode = fields.get("mode")
+        if mode in {"auto", "cool", "heat", "dry", "fan"}:
+            self.tcl_test_state[TCL_TEST_MODE] = "fan_only" if mode == "fan" else mode
+        self.tcl_test_state[TCL_TEST_POWER] = bool(fields.get("power"))
+        if isinstance(fields.get("temperature_c"), (int, float)):
+            self.tcl_test_state[TCL_TEST_TEMPERATURE] = float(fields["temperature_c"])
+        self.tcl_test_state[TCL_TEST_SWING_VERTICAL] = fields.get("swing_vertical") == "swing"
+        self.tcl_test_state[TCL_TEST_SWING_HORIZONTAL] = bool(fields.get("swing_horizontal"))
+        self.tcl_test_state[TCL_TEST_AUXILIARY_HEAT] = bool(fields.get("auxiliary_heat"))
+        preceding = fields.get("preceding_special_frame") or {}
+        command = str(preceding.get("observed_command") or "")
+        request = str(preceding.get("fan_request") or "")
+        fan_map = {
+            "auto": "auto", "quiet_step_0": "0", "step_1": "1",
+            "step_2": "2", "step_3": "3", "step_4": "4",
+            "step_5_or_feature": "5",
+        }
+        if request in fan_map:
+            self.tcl_test_state[TCL_TEST_FAN_STEP] = fan_map[request]
+        elif fields.get("fan_mode") == "quiet_sleep":
+            self.tcl_test_state[TCL_TEST_FAN_STEP] = "0"
+        elif fields.get("fan_mode") == "auto":
+            self.tcl_test_state[TCL_TEST_FAN_STEP] = "auto"
+        self.tcl_test_state[TCL_TEST_SLEEP] = (
+            fields.get("fan_mode") == "quiet_sleep"
+            or "sleep" in command
+        )
+        self.tcl_test_state[TCL_TEST_SOFT_WIND] = "soft_wind" in command
 
     @callback
     def set_decoder(self, decoder: str) -> None:

@@ -97,6 +97,8 @@ class TCLTestSwitch(IRSignalEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs) -> None:
         self.hub.set_tcl_test_parameter(self._parameter_key, True)
+        await self.hub.async_send_current_tcl()
 
     async def async_turn_off(self, **kwargs) -> None:
         self.hub.set_tcl_test_parameter(self._parameter_key, False)
+        await self.hub.async_send_current_tcl()
