@@ -31,6 +31,7 @@ from .const import (
     MIN_TCL_PAIR_DELAY_MS,
     SERVICE_SEND_TCL112AC,
     TCL_TEST_DEFAULTS,
+    TCL_TEST_AUXILIARY_HEAT,
     TCL_TEST_FAN_STEP,
     TCL_TEST_MODE,
     TCL_TEST_POWER,
@@ -74,6 +75,7 @@ SEND_TCL112AC_SCHEMA = vol.Schema(
         vol.Required("soft_wind", default=False): cv.boolean,
         vol.Required("swing_vertical", default=False): cv.boolean,
         vol.Required("swing_horizontal", default=False): cv.boolean,
+        vol.Required("auxiliary_heat", default=False): cv.boolean,
         vol.Optional("delay_ms"): vol.All(
             vol.Coerce(int),
             vol.Range(min=MIN_TCL_PAIR_DELAY_MS, max=MAX_TCL_PAIR_DELAY_MS),
@@ -233,6 +235,7 @@ class IRSignalHub:
             "swing_horizontal": bool(
                 self.tcl_test_state[TCL_TEST_SWING_HORIZONTAL]
             ),
+            "auxiliary_heat": bool(self.tcl_test_state[TCL_TEST_AUXILIARY_HEAT]),
         }
 
     @callback
@@ -596,6 +599,7 @@ def _tcl_parameter_summary(parameters: dict[str, Any]) -> str:
         ("soft_wind", "soft wind"),
         ("swing_vertical", "vertical swing"),
         ("swing_horizontal", "horizontal swing"),
+        ("auxiliary_heat", "auxiliary heat"),
     ):
         if parameters[key]:
             parts.append(label)
@@ -623,6 +627,7 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
                 soft_wind=call.data["soft_wind"],
                 swing_vertical=call.data["swing_vertical"],
                 swing_horizontal=call.data["swing_horizontal"],
+                auxiliary_heat=call.data["auxiliary_heat"],
             )
         except ValueError as err:
             raise HomeAssistantError(str(err)) from err

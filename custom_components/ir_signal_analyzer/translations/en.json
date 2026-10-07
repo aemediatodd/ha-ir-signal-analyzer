@@ -24,6 +24,7 @@
         "soft_wind": { "name": "Soft wind", "description": "Use the observed soft-wind command; requires fan step 5." },
         "swing_vertical": { "name": "Vertical swing", "description": "Enable up/down swing." },
         "swing_horizontal": { "name": "Horizontal swing", "description": "Enable left/right swing." },
+        "auxiliary_heat": { "name": "Auxiliary heat", "description": "Enable the observed auxiliary heat state; validated for heat mode." },
         "delay_ms": { "name": "Two-frame interval", "description": "Optional override; otherwise uses the interval entity value." }
       }
     }
@@ -100,7 +101,8 @@
       "tcl_test_sleep": { "name": "TCL test sleep" },
       "tcl_test_soft_wind": { "name": "TCL test soft wind" },
       "tcl_test_vertical_swing": { "name": "TCL test vertical swing" },
-      "tcl_test_horizontal_swing": { "name": "TCL test horizontal swing" }
+      "tcl_test_horizontal_swing": { "name": "TCL test horizontal swing" },
+      "tcl_test_auxiliary_heat": { "name": "TCL test auxiliary heat" }
     }
   }
 }

@@ -29,6 +29,7 @@ TCL_TEST_SLEEP = "tcl_test_sleep"
 TCL_TEST_SOFT_WIND = "tcl_test_soft_wind"
 TCL_TEST_SWING_VERTICAL = "tcl_test_swing_vertical"
 TCL_TEST_SWING_HORIZONTAL = "tcl_test_swing_horizontal"
+TCL_TEST_AUXILIARY_HEAT = "tcl_test_auxiliary_heat"
 TCL_TEST_MODE_OPTIONS = ["auto", "cool", "heat", "dry", "fan_only"]
 TCL_TEST_FAN_OPTIONS = ["auto", "0", "1", "2", "3", "4", "5", "6"]
 TCL_TEST_DEFAULTS = {
@@ -40,6 +41,7 @@ TCL_TEST_DEFAULTS = {
     TCL_TEST_SOFT_WIND: False,
     TCL_TEST_SWING_VERTICAL: False,
     TCL_TEST_SWING_HORIZONTAL: False,
+    TCL_TEST_AUXILIARY_HEAT: False,
 }
 TCL_TEST_TRANSMITTER_ACTION = "esphome.xiao_ir_transmitter_send_raw_pair"
 TCL_VALIDATION_TIMEOUT_SECONDS = 30

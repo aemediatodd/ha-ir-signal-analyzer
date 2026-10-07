@@ -36,6 +36,9 @@ class Tcl112AcEncoderTests(unittest.TestCase):
             ({"fan_step": 0, "sleep": True}, "0x23CB260200604000830000000048", "0x23CB2601002403070100000080C4"),
             ({"fan_step": "auto", "soft_wind": True, "sleep": True, "swing_vertical": True, "swing_horizontal": True}, "0x23CB2602004030988300000000B0", "0x23CB260100240307390000008804"),
             ({"mode": "heat", "fan_step": "auto", "sleep": True, "swing_vertical": True, "swing_horizontal": True}, "0x23CB2602004020988300000000A0", "0x23CB260100240107390000008802"),
+            ({"mode": "heat", "fan_step": "auto", "sleep": True, "swing_horizontal": True}, "0x23CB260200402090830000000098", "0x23CB2601002401070100000088CA"),
+            ({"mode": "heat", "fan_step": "auto", "sleep": True, "swing_vertical": True, "swing_horizontal": True, "auxiliary_heat": True}, "0x23CB2602004020988300000000A0", "0x23CB260100240107390000000882"),
+            ({"mode": "heat", "fan_step": "1", "sleep": True, "swing_vertical": True, "swing_horizontal": True, "auxiliary_heat": True}, "0x23CB2602004040988300000000C0", "0x23CB2601002401073A0000000883"),
         ]
         for options, special_hex, normal_hex in cases:
             with self.subTest(options=options):
@@ -96,6 +99,8 @@ class Tcl112AcEncoderTests(unittest.TestCase):
             encoder.encode_tcl112ac(fan_step=4, soft_wind=True)
         with self.assertRaises(ValueError):
             encoder.encode_tcl112ac(fan_step=5, soft_wind=True, sleep=True)
+        with self.assertRaises(ValueError):
+            encoder.encode_tcl112ac(auxiliary_heat=True, mode="cool")
 
     def test_frame_byte_differences_identifies_frame_and_byte(self):
         differences = encoder.frame_byte_differences(

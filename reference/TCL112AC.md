@@ -33,6 +33,7 @@ and a type-1 full-state frame immediately afterwards for each button action.
 | Byte 8 low 3 bits | Native fan group: 0 auto, 1 quiet/sleep, 2 steps 0-1, 3 steps 2-3, 5 steps 4-5 |
 | Byte 8 bits 3-5 | Vertical swing; observed `7` means swing |
 | Byte 12 bit 3 | Horizontal swing |
+| Byte 12 bit 7 | Observed auxiliary heat indicator in heat mode: clear for auxiliary heat, set for normal heat |
 | Last byte | Sum of preceding bytes; type-2 frames add `0x0F` |
 
 The special frame distinguishes remote fan steps that collapse into the same
@@ -56,6 +57,10 @@ the validated command combination, not by a universal sleep bit assumption.
 The captured `40 30 98` special frame is the soft-wind/sleep combination with
 both vertical and horizontal swing enabled. Its normal frame uses fan code 1,
 vertical swing code 7, and the horizontal swing bit.
+
+Auxiliary heat is currently validated only in heat mode. In the observed
+remote, clearing byte 12 bit 7 marks auxiliary heat; this is an empirical
+mapping for this TCL112AC unit and may differ on other models.
 
 ## Paired-frame timing
 

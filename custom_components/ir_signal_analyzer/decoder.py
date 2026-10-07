@@ -303,6 +303,7 @@ def decode_tcl112ac(pulses: list[int]) -> DecodeResult:
             "swing_vertical": swing_vertical,
             "swing_vertical_code": swing_vertical_code,
             "swing_horizontal": bool(values[12] & 0x08),
+            "auxiliary_heat": mode == "heat" and not bool(values[12] & 0x80),
             "health": bool(values[6] & 0x10),
             "feature_flag_0x40": feature_flag_0x40,
             "econo": bool(values[5] & 0x80),

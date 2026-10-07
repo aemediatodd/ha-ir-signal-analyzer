@@ -15,6 +15,7 @@ from .const import (
     TCL_TEST_SOFT_WIND,
     TCL_TEST_SWING_HORIZONTAL,
     TCL_TEST_SWING_VERTICAL,
+    TCL_TEST_AUXILIARY_HEAT,
 )
 from .entity import IRSignalEntity
 
@@ -49,6 +50,13 @@ async def async_setup_entry(
                 TCL_TEST_SWING_HORIZONTAL,
                 "tcl_test_horizontal_swing",
                 "mdi:swap-horizontal",
+            ),
+            TCLTestSwitch(
+                entry,
+                hub,
+                TCL_TEST_AUXILIARY_HEAT,
+                "tcl_test_auxiliary_heat",
+                "mdi:radiator",
             ),
         ]
     )

@@ -123,6 +123,24 @@
       "settings": "heat, 24.0 C, automatic fan, sleep, vertical and horizontal swing",
       "special_frame": "23CB2602004020988300000000A0",
       "normal_frame": "23CB260100240107390000008802"
+    },
+    {
+      "id": "heat_24_fan_auto_sleep_horizontal",
+      "settings": "heat, 24.0 C, automatic fan, sleep, horizontal swing",
+      "special_frame": "23CB260200402090830000000098",
+      "normal_frame": "23CB2601002401070100000088CA"
+    },
+    {
+      "id": "heat_24_fan_auto_sleep_both_swing_auxiliary_heat",
+      "settings": "heat, 24.0 C, automatic fan, sleep, vertical and horizontal swing, auxiliary heat",
+      "special_frame": "23CB2602004020988300000000A0",
+      "normal_frame": "23CB260100240107390000000882"
+    },
+    {
+      "id": "heat_24_fan1_sleep_both_swing_auxiliary_heat",
+      "settings": "heat, 24.0 C, fan step 1, sleep, vertical and horizontal swing, auxiliary heat",
+      "special_frame": "23CB2602004040988300000000C0",
+      "normal_frame": "23CB2601002401073A0000000883"
     }
   ]
 }

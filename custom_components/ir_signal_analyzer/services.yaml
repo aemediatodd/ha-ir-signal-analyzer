@@ -64,6 +64,11 @@ send_tcl112ac:
       default: false
       selector:
         boolean:
+    auxiliary_heat:
+      required: true
+      default: false
+      selector:
+        boolean:
     delay_ms:
       required: false
       selector:
