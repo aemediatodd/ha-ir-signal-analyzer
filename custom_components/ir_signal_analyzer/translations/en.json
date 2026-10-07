@@ -9,5 +9,34 @@
         }
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "last_received": { "name": "Last received" },
+      "protocol": { "name": "Protocol" },
+      "signal_data": { "name": "Signal data" },
+      "command": { "name": "Command" },
+      "signal_analysis": { "name": "Signal analysis" },
+      "unparsed_signal": { "name": "Unparsed signal" },
+      "ir_database_status": { "name": "IR database status" },
+      "irdb_snapshot_updated": { "name": "IRDB snapshot updated" }
+    },
+    "select": {
+      "decoder": {
+        "name": "Decoder",
+        "state": {
+          "auto": "Automatic",
+          "tcl112ac": "TCL112AC",
+          "nec": "NEC",
+          "raw": "Raw"
+        }
+      }
+    },
+    "button": {
+      "refresh_irdb_snapshot": { "name": "Refresh IRDB snapshot" }
+    },
+    "number": {
+      "two_frame_remote_interval": { "name": "Two-frame remote interval" }
+    }
   }
 }

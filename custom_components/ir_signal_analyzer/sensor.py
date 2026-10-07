@@ -34,7 +34,7 @@ async def async_setup_entry(
 
 
 class IRLastReceivedSensor(IRSignalEntity, SensorEntity):
-    _attr_name = "Last received"
+    _attr_translation_key = "last_received"
     _attr_icon = "mdi:remote"
     _attr_device_class = SensorDeviceClass.TIMESTAMP
 
@@ -69,7 +69,7 @@ class IRLastReceivedSensor(IRSignalEntity, SensorEntity):
 
 
 class IRProtocolSensor(IRSignalEntity, SensorEntity):
-    _attr_name = "Protocol"
+    _attr_translation_key = "protocol"
     _attr_icon = "mdi:code-braces"
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
@@ -83,7 +83,7 @@ class IRProtocolSensor(IRSignalEntity, SensorEntity):
 
 
 class IRSignalDataSensor(IRSignalEntity, SensorEntity):
-    _attr_name = "Signal data"
+    _attr_translation_key = "signal_data"
     _attr_icon = "mdi:pulse"
 
     def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
@@ -127,7 +127,7 @@ class IRSignalDataSensor(IRSignalEntity, SensorEntity):
 
 
 class IRCommandSensor(IRSignalEntity, SensorEntity):
-    _attr_name = "Command"
+    _attr_translation_key = "command"
     _attr_icon = "mdi:remote-tv"
 
     def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
@@ -149,7 +149,7 @@ class IRCommandSensor(IRSignalEntity, SensorEntity):
 
 
 class IRSignalAnalysisSensor(IRSignalEntity, SensorEntity):
-    _attr_name = "Signal analysis"
+    _attr_translation_key = "signal_analysis"
     _attr_icon = "mdi:database-search"
 
     def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
@@ -168,7 +168,7 @@ class IRSignalAnalysisSensor(IRSignalEntity, SensorEntity):
 
 
 class IRUnparsedSignalSensor(IRSignalEntity, SensorEntity):
-    _attr_name = "Unparsed signal"
+    _attr_translation_key = "unparsed_signal"
     _attr_icon = "mdi:help-rhombus"
 
     def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
@@ -187,7 +187,7 @@ class IRUnparsedSignalSensor(IRSignalEntity, SensorEntity):
 
 
 class IRDatabaseStatusSensor(IRSignalEntity, SensorEntity):
-    _attr_name = "IR database status"
+    _attr_translation_key = "ir_database_status"
     _attr_icon = "mdi:database-check"
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
@@ -205,7 +205,7 @@ class IRDatabaseStatusSensor(IRSignalEntity, SensorEntity):
 
 
 class IRDBSnapshotUpdatedSensor(IRSignalEntity, SensorEntity):
-    _attr_name = "IRDB snapshot updated"
+    _attr_translation_key = "irdb_snapshot_updated"
     _attr_icon = "mdi:calendar-clock"
     _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_entity_category = EntityCategory.DIAGNOSTIC

@@ -6,6 +6,10 @@ This bundle assigns two XIAO Smart IR Mate devices dedicated roles: one
 continuous listener and one transmitter. Received signals are exposed as Home
 Assistant entities with Recorder history.
 
+Every entity name and decoder option includes English and Simplified Chinese
+translations. Home Assistant selects them from the current user's interface
+language and falls back to English for other languages.
+
 ## Entities
 
 After installation, the integration creates:

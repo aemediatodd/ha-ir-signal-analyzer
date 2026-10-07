@@ -6,6 +6,11 @@
 Home Assistant Recorder 历史。即使连续按下同一个按键，接收时间也会变化，
 因此每次接收都会形成独立历史记录。
 
+所有实体名称和解码器选项均提供英文与简体中文翻译。英文保存在默认
+`strings.json` 和 `translations/en.json`，中文保存在独立的
+`translations/zh-Hans.json`；Home Assistant 会根据当前用户的界面语言自动
+选择，其他语言缺少翻译时回退英文。
+
 ## 会创建的实体
 
 - `sensor.ir_signal_last_received`：每次接收的时间。属性含来源、原始脉冲、

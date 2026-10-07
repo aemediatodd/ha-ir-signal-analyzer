@@ -23,7 +23,7 @@ async def async_setup_entry(
 
 
 class IRDBRefreshButton(IRSignalEntity, ButtonEntity):
-    _attr_name = "Refresh IRDB snapshot"
+    _attr_translation_key = "refresh_irdb_snapshot"
     _attr_icon = "mdi:database-refresh"
     _attr_entity_category = EntityCategory.CONFIG
 

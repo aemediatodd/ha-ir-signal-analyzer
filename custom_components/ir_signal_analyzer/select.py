@@ -22,7 +22,7 @@ async def async_setup_entry(
 
 
 class IRDecoderSelect(IRSignalEntity, SelectEntity):
-    _attr_name = "Decoder"
+    _attr_translation_key = "decoder"
     _attr_icon = "mdi:code-json"
     _attr_options = DECODER_OPTIONS
 
@@ -38,4 +38,3 @@ class IRDecoderSelect(IRSignalEntity, SelectEntity):
         if option not in DECODER_OPTIONS:
             raise ValueError(f"Unsupported decoder: {option}")
         self.hub.set_decoder(option)
-

@@ -9,5 +9,34 @@
         }
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "last_received": { "name": "最近接收" },
+      "protocol": { "name": "协议" },
+      "signal_data": { "name": "信号数据" },
+      "command": { "name": "命令" },
+      "signal_analysis": { "name": "信号分析" },
+      "unparsed_signal": { "name": "未解析信号" },
+      "ir_database_status": { "name": "红外数据库状态" },
+      "irdb_snapshot_updated": { "name": "IRDB 快照更新时间" }
+    },
+    "select": {
+      "decoder": {
+        "name": "解码器",
+        "state": {
+          "auto": "自动",
+          "tcl112ac": "TCL112AC",
+          "nec": "NEC",
+          "raw": "原始信号"
+        }
+      }
+    },
+    "button": {
+      "refresh_irdb_snapshot": { "name": "更新 IRDB 快照" }
+    },
+    "number": {
+      "two_frame_remote_interval": { "name": "2帧遥控间隔" }
+    }
   }
 }

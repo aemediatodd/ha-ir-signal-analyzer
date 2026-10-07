@@ -29,7 +29,7 @@ async def async_setup_entry(
 class TCLPairDelayNumber(IRSignalEntity, NumberEntity):
     """Configure the delay between TCL command and state frames."""
 
-    _attr_name = "TCL paired-frame delay"
+    _attr_translation_key = "two_frame_remote_interval"
     _attr_icon = "mdi:timer-settings-outline"
     _attr_entity_category = EntityCategory.CONFIG
     _attr_native_min_value = MIN_TCL_PAIR_DELAY_MS
