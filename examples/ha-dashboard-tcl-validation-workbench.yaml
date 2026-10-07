@@ -1,0 +1,18 @@
+type: entities
+title: TCL 编码验证工作台
+show_header_toggle: false
+entities:
+  # Replace IDs if Home Assistant assigned a device-name prefix or suffix.
+  - entity: switch.ir_signal_analyzer_tcl_test_power
+  - entity: select.ir_signal_analyzer_tcl_test_mode
+  - entity: number.ir_signal_analyzer_tcl_test_temperature
+  - entity: select.ir_signal_analyzer_tcl_test_fan_step
+  - entity: switch.ir_signal_analyzer_tcl_test_sleep
+  - entity: switch.ir_signal_analyzer_tcl_test_soft_wind
+  - entity: switch.ir_signal_analyzer_tcl_test_vertical_swing
+  - entity: switch.ir_signal_analyzer_tcl_test_horizontal_swing
+  - entity: number.ir_signal_analyzer_remote_2_frame_interval
+  - entity: button.ir_signal_analyzer_tcl_capture_validation
+  - entity: button.ir_signal_analyzer_tcl_send_generated_test
+  - entity: sensor.ir_signal_analyzer_tcl_validation_result
+  - entity: sensor.ir_signal_analyzer_tcl_validated_combination

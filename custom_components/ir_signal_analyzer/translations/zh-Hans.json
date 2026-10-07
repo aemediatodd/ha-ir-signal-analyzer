@@ -37,7 +37,20 @@
       "signal_analysis": { "name": "信号分析" },
       "unparsed_signal": { "name": "未解析信号" },
       "ir_database_status": { "name": "红外数据库状态" },
-      "irdb_snapshot_updated": { "name": "IRDB 快照更新时间" }
+      "irdb_snapshot_updated": { "name": "IRDB 快照更新时间" },
+      "tcl_validation_result": {
+        "name": "TCL 验证结果",
+        "state": {
+          "idle": "空闲",
+          "waiting": "等待中",
+          "matched": "完全匹配",
+          "semantic_match": "语义匹配",
+          "mismatch": "不匹配",
+          "timed_out": "等待超时",
+          "error": "错误"
+        }
+      },
+      "tcl_validated_combination": { "name": "TCL 已验证组合" }
     },
     "select": {
       "decoder": {
@@ -48,13 +61,46 @@
           "nec": "NEC",
           "raw": "原始信号"
         }
+      },
+      "tcl_test_mode": {
+        "name": "TCL 测试模式",
+        "state": {
+          "auto": "自动",
+          "cool": "制冷",
+          "heat": "制热",
+          "dry": "除湿",
+          "fan_only": "送风"
+        }
+      },
+      "tcl_test_fan_step": {
+        "name": "TCL 测试风档",
+        "state": {
+          "auto": "自动",
+          "0": "0档（静音）",
+          "1": "1档",
+          "2": "2档",
+          "3": "3档",
+          "4": "4档",
+          "5": "5档",
+          "6": "6档（强劲）"
+        }
       }
     },
     "button": {
-      "refresh_irdb_snapshot": { "name": "更新 IRDB 快照" }
+      "refresh_irdb_snapshot": { "name": "更新 IRDB 快照" },
+      "tcl_capture_validation": { "name": "等待原遥控器样本" },
+      "tcl_send_generated_test": { "name": "发送编码测试" }
     },
     "number": {
-      "two_frame_remote_interval": { "name": "发送2帧间隔" }
+      "two_frame_remote_interval": { "name": "发送2帧间隔" },
+      "tcl_test_temperature": { "name": "TCL 测试温度" }
+    },
+    "switch": {
+      "tcl_test_power": { "name": "TCL 测试电源" },
+      "tcl_test_sleep": { "name": "TCL 测试睡眠" },
+      "tcl_test_soft_wind": { "name": "TCL 测试柔风" },
+      "tcl_test_vertical_swing": { "name": "TCL 测试上下风" },
+      "tcl_test_horizontal_swing": { "name": "TCL 测试左右风" }
     }
   }
 }

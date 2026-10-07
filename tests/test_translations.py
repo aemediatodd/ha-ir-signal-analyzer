@@ -32,7 +32,13 @@ class TranslationTests(unittest.TestCase):
         self.assertEqual(key_shape(english["entity"]), key_shape(chinese["entity"]))
 
     def test_every_entity_uses_translation_key(self):
-        for filename in ("sensor.py", "select.py", "button.py", "number.py"):
+        for filename in (
+            "sensor.py",
+            "select.py",
+            "button.py",
+            "number.py",
+            "switch.py",
+        ):
             source = (INTEGRATION_PATH / filename).read_text(encoding="utf-8")
             self.assertNotIn("_attr_name =", source, filename)
 

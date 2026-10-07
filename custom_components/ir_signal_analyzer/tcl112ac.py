@@ -44,6 +44,44 @@ class EncodedTcl112Ac:
     normal_hex: str
 
 
+def frame_byte_differences(
+    expected_special: str,
+    expected_normal: str,
+    captured_special: str,
+    captured_normal: str,
+) -> list[dict[str, str | int]]:
+    """Return byte-level differences for a captured TCL frame pair."""
+    differences: list[dict[str, str | int]] = []
+    for frame, expected, captured in (
+        ("special", expected_special, captured_special),
+        ("normal", expected_normal, captured_normal),
+    ):
+        expected_bytes = bytes.fromhex(expected.removeprefix("0x"))
+        captured_bytes = bytes.fromhex(captured.removeprefix("0x"))
+        width = max(len(expected_bytes), len(captured_bytes))
+        for index in range(width):
+            expected_value = expected_bytes[index] if index < len(expected_bytes) else None
+            captured_value = captured_bytes[index] if index < len(captured_bytes) else None
+            if expected_value != captured_value:
+                differences.append(
+                    {
+                        "frame": frame,
+                        "index": index,
+                        "expected": (
+                            f"0x{expected_value:02X}"
+                            if expected_value is not None
+                            else "missing"
+                        ),
+                        "captured": (
+                            f"0x{captured_value:02X}"
+                            if captured_value is not None
+                            else "missing"
+                        ),
+                    }
+                )
+    return differences
+
+
 def encode_tcl112ac(
     *,
     power: bool = True,

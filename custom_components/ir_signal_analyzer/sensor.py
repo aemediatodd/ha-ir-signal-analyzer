@@ -29,6 +29,8 @@ async def async_setup_entry(
             IRDBSnapshotUpdatedSensor(entry, hub),
             IRProtocolSensor(entry, hub),
             IRCommandSensor(entry, hub),
+            TCLValidationResultSensor(entry, hub),
+            TCLValidatedCombinationSensor(entry, hub),
         ]
     )
 
@@ -217,3 +219,52 @@ class IRDBSnapshotUpdatedSensor(IRSignalEntity, SensorEntity):
     @property
     def native_value(self):
         return self.hub.catalog.last_update
+
+
+class TCLValidationResultSensor(IRSignalEntity, SensorEntity):
+    _attr_translation_key = "tcl_validation_result"
+    _attr_icon = "mdi:clipboard-check-outline"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = [
+        "idle",
+        "waiting",
+        "matched",
+        "semantic_match",
+        "mismatch",
+        "timed_out",
+        "error",
+    ]
+
+    def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
+        super().__init__(entry, hub)
+        self._attr_unique_id = f"{entry.entry_id}_tcl_validation_result"
+
+    @property
+    def native_value(self):
+        return self.hub.validation_status
+
+    @property
+    def extra_state_attributes(self):
+        return self.hub.validation_details
+
+
+class TCLValidatedCombinationSensor(IRSignalEntity, SensorEntity):
+    _attr_translation_key = "tcl_validated_combination"
+    _attr_icon = "mdi:archive-check-outline"
+
+    def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
+        super().__init__(entry, hub)
+        self._attr_unique_id = f"{entry.entry_id}_tcl_validated_combination"
+
+    @property
+    def native_value(self):
+        record = self.hub.last_validated_combination
+        return record.get("summary") if record else "none"
+
+    @property
+    def extra_state_attributes(self):
+        return {
+            "validated_count": len(self.hub.validated_combinations),
+            "latest": self.hub.last_validated_combination,
+            "storage_path": self.hub.validated_storage_path,
+        }

@@ -19,7 +19,13 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     hub: IRSignalHub = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([IRDBRefreshButton(entry, hub)])
+    async_add_entities(
+        [
+            IRDBRefreshButton(entry, hub),
+            TCLCaptureValidationButton(entry, hub),
+            TCLSendGeneratedTestButton(entry, hub),
+        ]
+    )
 
 
 class IRDBRefreshButton(IRSignalEntity, ButtonEntity):
@@ -33,3 +39,27 @@ class IRDBRefreshButton(IRSignalEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         await self.hub.async_refresh_catalog()
+
+
+class TCLCaptureValidationButton(IRSignalEntity, ButtonEntity):
+    _attr_translation_key = "tcl_capture_validation"
+    _attr_icon = "mdi:remote"
+
+    def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
+        super().__init__(entry, hub)
+        self._attr_unique_id = f"{entry.entry_id}_tcl_capture_validation"
+
+    async def async_press(self) -> None:
+        self.hub.start_capture_validation()
+
+
+class TCLSendGeneratedTestButton(IRSignalEntity, ButtonEntity):
+    _attr_translation_key = "tcl_send_generated_test"
+    _attr_icon = "mdi:send"
+
+    def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
+        super().__init__(entry, hub)
+        self._attr_unique_id = f"{entry.entry_id}_tcl_send_generated_test"
+
+    async def async_press(self) -> None:
+        await self.hub.async_send_generated_test()

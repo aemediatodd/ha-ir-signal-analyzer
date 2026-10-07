@@ -40,6 +40,14 @@ After installation, the integration creates:
   persisted across restarts.
 - `select.ir_signal_decoder`: selects `auto`, `nec`, or `raw`. Changing this
   re-analyzes the most recently received signal.
+- A TCL validation workbench exposes one shared set of power, mode,
+  temperature, fan-step, sleep, soft-wind, and swing controls; two buttons start
+  original-remote capture or generated-transmission testing.
+- **TCL validation result** reports `waiting`, `matched`, `semantic_match`,
+  `mismatch`, `timed_out`, or `error`, with expected/captured frames and byte
+  differences in its attributes.
+- **TCL validated combination** shows the latest byte-exact original-remote
+  match and the number of persisted validated combinations.
 
 Because the last-received sensor state is a timestamp, repeated presses of the
 same remote button still create separate Recorder history entries.
@@ -140,6 +148,21 @@ Modes are `auto`, `cool`, `heat`, `dry`, and `fan_only`; temperature is 16-31 C
 in 0.5 C steps; fan step is `auto` or remote steps 0-6. Omitting `delay_ms`
 uses the configured Remote 2-frame interval. Soft wind is restricted to the
 observed fan-step-5 combination, and sleep cannot be combined with soft wind.
+
+## TCL validation workbench
+
+Use `examples/ha-dashboard-tcl-validation-workbench.yaml` as an Entities card,
+replacing entity IDs if Home Assistant added a prefix or suffix. Select the
+complete candidate state, press **Wait for original remote sample**, and send
+the same state once from the physical remote within 30 seconds. A byte-exact
+pair is persisted to
+`/config/ir_signal_analyzer/tcl112ac-validated.json`.
+
+Press **Send encoded test** to generate and transmit the selected pair. The
+dedicated listener captures the transmission and reports the comparison with
+source `generated_echo`. Generated loopback tests never create original-remote
+evidence. A semantic match indicates known decoded fields agree but unknown
+bytes differ, so it is retained for analysis rather than marked validated.
 
 ## 3. Verify reception
 

@@ -89,6 +89,28 @@ class Tcl112AcEncoderTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             encoder.encode_tcl112ac(fan_step=5, soft_wind=True, sleep=True)
 
+    def test_frame_byte_differences_identifies_frame_and_byte(self):
+        differences = encoder.frame_byte_differences(
+            "0x0102", "0x0304", "0x0105", "0x0604"
+        )
+        self.assertEqual(
+            differences,
+            [
+                {
+                    "frame": "special",
+                    "index": 1,
+                    "expected": "0x02",
+                    "captured": "0x05",
+                },
+                {
+                    "frame": "normal",
+                    "index": 0,
+                    "expected": "0x03",
+                    "captured": "0x06",
+                },
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

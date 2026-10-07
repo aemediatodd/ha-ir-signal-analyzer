@@ -37,7 +37,20 @@
       "signal_analysis": { "name": "Signal analysis" },
       "unparsed_signal": { "name": "Unparsed signal" },
       "ir_database_status": { "name": "IR database status" },
-      "irdb_snapshot_updated": { "name": "IRDB snapshot updated" }
+      "irdb_snapshot_updated": { "name": "IRDB snapshot updated" },
+      "tcl_validation_result": {
+        "name": "TCL validation result",
+        "state": {
+          "idle": "Idle",
+          "waiting": "Waiting",
+          "matched": "Matched",
+          "semantic_match": "Semantic match",
+          "mismatch": "Mismatch",
+          "timed_out": "Timed out",
+          "error": "Error"
+        }
+      },
+      "tcl_validated_combination": { "name": "TCL validated combination" }
     },
     "select": {
       "decoder": {
@@ -48,13 +61,46 @@
           "nec": "NEC",
           "raw": "Raw"
         }
+      },
+      "tcl_test_mode": {
+        "name": "TCL test mode",
+        "state": {
+          "auto": "Automatic",
+          "cool": "Cool",
+          "heat": "Heat",
+          "dry": "Dry",
+          "fan_only": "Fan only"
+        }
+      },
+      "tcl_test_fan_step": {
+        "name": "TCL test fan step",
+        "state": {
+          "auto": "Automatic",
+          "0": "Step 0 (quiet)",
+          "1": "Step 1",
+          "2": "Step 2",
+          "3": "Step 3",
+          "4": "Step 4",
+          "5": "Step 5",
+          "6": "Step 6 (turbo)"
+        }
       }
     },
     "button": {
-      "refresh_irdb_snapshot": { "name": "Refresh IRDB snapshot" }
+      "refresh_irdb_snapshot": { "name": "Refresh IRDB snapshot" },
+      "tcl_capture_validation": { "name": "Wait for original remote sample" },
+      "tcl_send_generated_test": { "name": "Send encoded test" }
     },
     "number": {
-      "two_frame_remote_interval": { "name": "Remote 2-frame interval" }
+      "two_frame_remote_interval": { "name": "Remote 2-frame interval" },
+      "tcl_test_temperature": { "name": "TCL test temperature" }
+    },
+    "switch": {
+      "tcl_test_power": { "name": "TCL test power" },
+      "tcl_test_sleep": { "name": "TCL test sleep" },
+      "tcl_test_soft_wind": { "name": "TCL test soft wind" },
+      "tcl_test_vertical_swing": { "name": "TCL test vertical swing" },
+      "tcl_test_horizontal_swing": { "name": "TCL test horizontal swing" }
     }
   }
 }
