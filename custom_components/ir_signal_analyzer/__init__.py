@@ -12,11 +12,15 @@ from homeassistant.helpers.dispatcher import async_dispatcher_send
 
 from .const import (
     CONF_SOURCE,
+    CONF_TCL_PAIR_DELAY_MS,
     DECODER_AUTO,
+    DEFAULT_TCL_PAIR_DELAY_MS,
     DOMAIN,
     EVENT_IR_RECEIVED,
     PLATFORMS,
     SIGNAL_UPDATE,
+    MAX_TCL_PAIR_DELAY_MS,
+    MIN_TCL_PAIR_DELAY_MS,
 )
 from .catalog import SignalInterpretation
 from .catalog_manager import CatalogManager
@@ -50,6 +54,17 @@ class IRSignalHub:
         self.entry = entry
         self.source_filter = str(entry.data.get(CONF_SOURCE, "")).strip()
         self.decoder = str(entry.options.get("decoder", DECODER_AUTO))
+        self.tcl_pair_delay_ms = max(
+            MIN_TCL_PAIR_DELAY_MS,
+            min(
+                MAX_TCL_PAIR_DELAY_MS,
+                int(
+                    entry.options.get(
+                        CONF_TCL_PAIR_DELAY_MS, DEFAULT_TCL_PAIR_DELAY_MS
+                    )
+                ),
+            ),
+        )
         self.catalog = CatalogManager(hass)
         self.last_signal: CapturedSignal | None = None
         self.last_interpretation: SignalInterpretation | None = None
@@ -105,6 +120,21 @@ class IRSignalHub:
                 self.last_signal.pulses, analysis
             )
             self._update_interpretation()
+        async_dispatcher_send(self.hass, f"{SIGNAL_UPDATE}_{self.entry.entry_id}")
+
+    @callback
+    def set_tcl_pair_delay_ms(self, value: int) -> None:
+        self.tcl_pair_delay_ms = max(
+            MIN_TCL_PAIR_DELAY_MS,
+            min(MAX_TCL_PAIR_DELAY_MS, int(value)),
+        )
+        self.hass.config_entries.async_update_entry(
+            self.entry,
+            options={
+                **self.entry.options,
+                CONF_TCL_PAIR_DELAY_MS: self.tcl_pair_delay_ms,
+            },
+        )
         async_dispatcher_send(self.hass, f"{SIGNAL_UPDATE}_{self.entry.entry_id}")
 
     async def async_refresh_catalog(self) -> None:
@@ -166,6 +196,7 @@ class IRSignalHub:
             ),
         }
         fields["pair_interval_ms"] = interval_ms
+        fields["configured_pair_delay_ms"] = self.tcl_pair_delay_ms
         observed_command = special_fields.get("observed_command")
         if observed_command:
             fields["remote_command"] = observed_command
@@ -178,6 +209,7 @@ class IRSignalHub:
                 "action": "esphome.xiao_ir_transmitter_send_raw",
                 "carrier_frequency": 38000,
                 "raw": special.raw,
+                "delay_after_ms": self.tcl_pair_delay_ms,
             },
             {
                 "action": "esphome.xiao_ir_transmitter_send_raw",
