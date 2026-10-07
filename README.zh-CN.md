@@ -56,6 +56,12 @@ ota_password: "OTA 密码"
 - `esphome.xiao_ir_transmitter_send_raw`
 - `esphome.xiao_ir_transmitter_send_nec`
 
+监听固件使用 1 ms API 批处理、ESP32 推荐的 8 条发送队列，并关闭协议全量
+日志，避免连续按键时累积几十秒的旧事件。`Last received` 属性中的
+`device_sequence` 是设备端接收序号，`device_uptime_ms` 是设备接收时的运行
+时间；序号连续但历史面板稍后才显示，说明只是前端或 Recorder 刷新延迟。
+序号跳号则表示设备到 HA 的 API 链路出现过丢包。
+
 ## 2. 安装 Home Assistant 集成
 
 推荐通过 HACS 安装：

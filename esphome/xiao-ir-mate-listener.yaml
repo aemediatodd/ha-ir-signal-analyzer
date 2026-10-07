@@ -13,11 +13,13 @@ esp32:
     type: esp-idf
 
 logger:
-  level: DEBUG
+  # Protocol dumpers can monopolize the ESP32-C3 while a remote is held down.
+  level: WARN
 
 api:
   id: api_id
-  max_send_queue: 32
+  batch_delay: 1ms
+  max_send_queue: 8
   encryption:
     key: !secret api_encryption_key
 
@@ -33,6 +35,12 @@ wifi:
 
 captive_portal:
 
+globals:
+  - id: ir_capture_sequence
+    type: uint32_t
+    restore_value: false
+    initial_value: "0"
+
 button:
   - platform: restart
     name: Restart
@@ -43,13 +51,13 @@ remote_receiver:
     pin:
       number: GPIO4
       inverted: true
-    dump: all
     tolerance: 25%
     filter: 50us
     idle: 10ms
     buffer_size: 10kB
     on_raw:
       then:
+        - lambda: id(ir_capture_sequence)++;
         - homeassistant.event:
             event: esphome.ir_received
             data:
@@ -57,6 +65,8 @@ remote_receiver:
             data_template:
               raw: "{{ raw_code }}"
               pulse_count: "{{ pulse_count }}"
+              capture_sequence: "{{ capture_sequence }}"
+              device_uptime_ms: "{{ device_uptime_ms }}"
             variables:
               raw_code: !lambda |-
                 std::string result;
@@ -70,6 +80,10 @@ remote_receiver:
                 return result;
               pulse_count: !lambda |-
                 return std::to_string(x.size());
+              capture_sequence: !lambda |-
+                return std::to_string(id(ir_capture_sequence));
+              device_uptime_ms: !lambda |-
+                return std::to_string(millis());
 
 infrared:
   - platform: ir_rf_proxy

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import Entity
@@ -33,6 +34,6 @@ class IRSignalEntity(Entity):
             )
         )
 
+    @callback
     def _handle_update(self) -> None:
         self.async_write_ha_state()
-

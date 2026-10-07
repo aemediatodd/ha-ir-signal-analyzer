@@ -58,6 +58,8 @@ class IRLastReceivedSensor(IRSignalEntity, SensorEntity):
             "decode_status": signal.analysis.status,
             "fingerprint": signal.fingerprint,
             "pulse_count": len(signal.pulses),
+            "device_sequence": signal.device_sequence,
+            "device_uptime_ms": signal.device_uptime_ms,
             "raw": signal.raw,
             "decoded": signal.analysis.as_dict(),
             "last_error": self.hub.last_error,
@@ -113,6 +115,8 @@ class IRSignalDataSensor(IRSignalEntity, SensorEntity):
             "decode_status": signal.analysis.status,
             "fingerprint": signal.fingerprint,
             "pulse_count": len(signal.pulses),
+            "device_sequence": signal.device_sequence,
+            "device_uptime_ms": signal.device_uptime_ms,
             "raw": signal.raw,
             "decoded": signal.analysis.as_dict(),
         }

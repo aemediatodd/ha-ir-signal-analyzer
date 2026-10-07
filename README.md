@@ -60,7 +60,9 @@ The listener only enables the official receiver entity and sends every captured
 raw signal to the Home Assistant event bus. The transmitter only enables the
 official transmitter entity and Home Assistant actions for raw and NEC
 transmission. `dump: all` also prints protocol guesses, Pronto, and raw data to
-the listener's ESPHome DEBUG log.
+the listener's ESPHome DEBUG log when temporarily enabled for troubleshooting.
+The supplied low-latency listener configuration keeps protocol dumping disabled
+during normal operation so log traffic cannot delay Home Assistant events.
 
 ## 2. Install the Home Assistant integration
 

@@ -31,6 +31,8 @@ class CapturedSignal:
     pulses: list[int]
     fingerprint: str
     analysis: DecodeResult
+    device_sequence: int | None = None
+    device_uptime_ms: int | None = None
 
 
 class IRSignalHub:
@@ -64,6 +66,8 @@ class IRSignalHub:
                 pulses=pulses,
                 fingerprint=fingerprint(pulses),
                 analysis=analyze(pulses, self.decoder),
+                device_sequence=_optional_int(event.data.get("capture_sequence")),
+                device_uptime_ms=_optional_int(event.data.get("device_uptime_ms")),
             )
             self._update_interpretation()
             self.last_error = None
@@ -107,6 +111,13 @@ class IRSignalHub:
         self.last_interpretation = interpretation
         if interpretation.unknown_state is not None:
             self.last_unknown = interpretation
+
+
+def _optional_int(value: Any) -> int | None:
+    try:
+        return int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
