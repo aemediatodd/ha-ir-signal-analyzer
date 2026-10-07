@@ -22,6 +22,7 @@ async def async_setup_entry(
     async_add_entities(
         [
             IRLastReceivedSensor(entry, hub),
+            IRSignalDataSensor(entry, hub),
             IRProtocolSensor(entry, hub),
             IRCommandSensor(entry, hub),
         ]
@@ -73,6 +74,46 @@ class IRProtocolSensor(IRSignalEntity, SensorEntity):
         return self.hub.last_signal.analysis.protocol if self.hub.last_signal else None
 
 
+class IRSignalDataSensor(IRSignalEntity, SensorEntity):
+    _attr_name = "Signal data"
+    _attr_icon = "mdi:pulse"
+
+    def __init__(self, entry: ConfigEntry, hub: IRSignalHub) -> None:
+        super().__init__(entry, hub)
+        self._attr_unique_id = f"{entry.entry_id}_signal_data"
+
+    @property
+    def native_value(self):
+        signal = self.hub.last_signal
+        if signal is None:
+            return None
+
+        analysis = signal.analysis
+        data_hex = analysis.fields.get("data_hex")
+        if data_hex:
+            return f"{analysis.protocol.upper()} {data_hex}"
+        if analysis.fields.get("repeat"):
+            return f"{analysis.protocol.upper()} repeat"
+        if len(signal.raw) <= 255:
+            return signal.raw
+        return f"{signal.raw[:220]}... [{signal.fingerprint}]"
+
+    @property
+    def extra_state_attributes(self):
+        signal = self.hub.last_signal
+        if signal is None:
+            return None
+        return {
+            "source": signal.source,
+            "protocol": signal.analysis.protocol,
+            "decode_status": signal.analysis.status,
+            "fingerprint": signal.fingerprint,
+            "pulse_count": len(signal.pulses),
+            "raw": signal.raw,
+            "decoded": signal.analysis.as_dict(),
+        }
+
+
 class IRCommandSensor(IRSignalEntity, SensorEntity):
     _attr_name = "Command"
     _attr_icon = "mdi:remote-tv"
@@ -93,4 +134,3 @@ class IRCommandSensor(IRSignalEntity, SensorEntity):
         if self.hub.last_signal is None:
             return None
         return self.hub.last_signal.analysis.as_dict()
-

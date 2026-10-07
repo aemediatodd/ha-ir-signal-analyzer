@@ -12,6 +12,8 @@ Home Assistant Recorder 历史。即使连续按下同一个按键，接收时�
   指纹、脉冲数、解码状态和全部解析字段。
 - `sensor.ir_signal_protocol`：当前识别出的协议。
 - `sensor.ir_signal_command`：命令或数据值。
+- `sensor.ir_signal_data`：状态值直接显示 IR 数据。NEC 显示协议和完整编码，
+  未识别信号显示 raw 时序；超过 255 字符时状态截断，完整 raw 保存在属性中。
 - `select.ir_signal_decoder`：选择 `auto`、`nec` 或 `raw`，选择后会立即按
   指定方式重新解析最近一次信号。
 
@@ -92,6 +94,7 @@ type: entities
 title: IR 信号分析器
 entities:
   - entity: sensor.ir_signal_last_received
+  - entity: sensor.ir_signal_data
   - entity: sensor.ir_signal_protocol
   - entity: sensor.ir_signal_command
   - entity: select.ir_signal_decoder

@@ -15,6 +15,10 @@ After installation, the integration creates:
   decode status, and decoded fields.
 - `sensor.ir_signal_protocol`: the detected or selected protocol.
 - `sensor.ir_signal_command`: the decoded command or data value.
+- `sensor.ir_signal_data`: displays the IR data directly as its state. NEC
+  signals show the protocol and complete encoded value; raw timings are shown
+  for unknown signals. Long raw states are truncated to Home Assistant's
+  255-character limit while the complete value remains in the `raw` attribute.
 - `select.ir_signal_decoder`: selects `auto`, `nec`, or `raw`. Changing this
   re-analyzes the most recently received signal.
 
@@ -115,6 +119,7 @@ type: entities
 title: IR Signal Analyzer
 entities:
   - entity: sensor.ir_signal_last_received
+  - entity: sensor.ir_signal_data
   - entity: sensor.ir_signal_protocol
   - entity: sensor.ir_signal_command
   - entity: select.ir_signal_decoder
