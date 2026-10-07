@@ -116,9 +116,13 @@ def encode_tcl112ac(
         0x30
         if soft_sleep
         else (
-            0x40
-            if sleep and fan == "0"
+            0x20
+            if sleep and fan == "auto"
+            else (
+                0x40
+                if sleep and fan == "0"
             else (0xC0 if sleep else (0xD0 if soft_wind else FAN_SPECIAL_PARAMETERS[fan]))
+            )
         )
     )
     if swing_vertical:

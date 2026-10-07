@@ -117,6 +117,12 @@
       "settings": "cool, 24.0 C, automatic/quiet fan, soft wind, sleep, vertical and horizontal swing",
       "special_frame": "23CB2602004030988300000000B0",
       "normal_frame": "23CB260100240307390000008804"
+    },
+    {
+      "id": "heat_24_fan_auto_sleep_both_swing",
+      "settings": "heat, 24.0 C, automatic fan, sleep, vertical and horizontal swing",
+      "special_frame": "23CB2602004020988300000000A0",
+      "normal_frame": "23CB260100240107390000008802"
     }
   ]
 }
