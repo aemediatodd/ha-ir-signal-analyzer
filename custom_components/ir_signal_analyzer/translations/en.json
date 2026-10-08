@@ -31,7 +31,13 @@
   },
   "entity": {
     "climate": {
-      "tcl_advanced_climate": { "name": "TCL-Advanced" }
+      "tcl_advanced_climate": {
+        "name": "TCL-Advanced",
+        "state_attributes": {
+          "preset_mode": {"state":{"none":"None","sleep":"Sleep","soft_wind":"Soft wind","soft_wind_sleep":"Sleep soft wind"}},
+          "swing_mode": {"state":{"off":"Off","highest":"Highest","lowest":"Lowest","far_left":"Far left","vertical":"Vertical","horizontal":"Horizontal","both":"Both","highest_far_left":"Highest + far left","lowest_far_left":"Lowest + far left"}}
+        }
+      }
     },
     "sensor": {
       "last_received": { "name": "Last received" },
@@ -92,7 +98,13 @@
       ,"tcl_test_remote_profile": {
         "name": "TCL remote profile",
         "state": { "TCL-高级": "TCL-Advanced" }
-      }
+      },
+      "tcl_horizontal_fixed": {"name":"TCL-Advanced horizontal fixed","state":{"off":"Off","far_left":"Far left","left":"Left","center":"Center","right":"Right","far_right":"Far right"}},
+      "tcl_horizontal_swing": {"name":"TCL-Advanced horizontal swing","state":{"off":"Off","left_center_swing":"Left-center swing","center_swing":"Center swing","right_center_swing":"Right-center swing","full_swing":"Full swing"}},
+      "tcl_vertical_fixed": {"name":"TCL-Advanced vertical fixed","state":{"off":"Off","highest":"Highest","high":"High","middle":"Middle","low":"Low","lowest":"Lowest"}},
+      "tcl_vertical_swing": {"name":"TCL-Advanced vertical swing","state":{"off":"Off","upper_center_swing":"Upper-center swing","full_swing":"Full swing","lower_center_swing":"Lower-center swing"}},
+      "tcl_test_horizontal_airflow": {"name":"TCL test horizontal airflow","state":{"off":"Off","far_left":"Far left","left":"Left","center":"Center","right":"Right","far_right":"Far right","left_center_swing":"Left-center swing","center_swing":"Center swing","right_center_swing":"Right-center swing","full_swing":"Full swing"}},
+      "tcl_test_vertical_airflow": {"name":"TCL test vertical airflow","state":{"off":"Off","highest":"Highest","high":"High","middle":"Middle","low":"Low","lowest":"Lowest","upper_center_swing":"Upper-center swing","full_swing":"Full swing","lower_center_swing":"Lower-center swing"}}
     },
     "button": {
       "refresh_irdb_snapshot": { "name": "Refresh IRDB snapshot" },

@@ -36,6 +36,15 @@ and a type-1 full-state frame immediately afterwards for each button action.
 | Byte 12 bit 7 | Observed auxiliary heat indicator in heat mode: clear for auxiliary heat, set for normal heat |
 | Last byte | Sum of preceding bytes; type-2 frames add `0x0F` |
 
+In observed type-2 frames, byte 7 is split into independent airflow nibbles.
+The high nibble selects horizontal airflow: `1` far left, `2` left, `3`
+center, `4` right, `5` far right, `6` left-center swing, `7` center swing,
+`8` right-center swing, and `9` full horizontal swing. The low nibble selects
+vertical airflow: `1` highest, `2` high, `3` middle, `4` low, `5` lowest,
+`6` upper-center swing, `7` lower-center swing, and `8` full vertical swing.
+The two nibbles compose directly, for example `0x11` is highest plus far left
+and `0x98` is full horizontal plus full vertical swing.
+
 The special frame distinguishes remote fan steps that collapse into the same
 native fan group in the following normal frame. For example, steps 0 and 1 both
 produce native fan code 2, while steps 4 and 5 both produce code 5. Consumers

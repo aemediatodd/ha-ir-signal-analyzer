@@ -42,6 +42,8 @@ from .const import (
     TCL_TEST_SWING_VERTICAL,
     TCL_TEST_TEMPERATURE,
     TCL_TEST_TRANSMITTER_ACTION,
+    TCL_VERTICAL_AIRFLOW,
+    TCL_HORIZONTAL_AIRFLOW,
     TCL_VALIDATION_TIMEOUT_SECONDS,
 )
 from .catalog import SignalInterpretation
@@ -191,6 +193,10 @@ class IRSignalHub:
         self.tcl_test_state[TCL_TEST_SWING_HORIZONTAL] = bool(fields.get("swing_horizontal"))
         self.tcl_test_state[TCL_TEST_AUXILIARY_HEAT] = bool(fields.get("auxiliary_heat"))
         preceding = fields.get("preceding_special_frame") or {}
+        if preceding.get("vertical_airflow"):
+            self.tcl_test_state[TCL_VERTICAL_AIRFLOW] = preceding["vertical_airflow"]
+        if preceding.get("horizontal_airflow"):
+            self.tcl_test_state[TCL_HORIZONTAL_AIRFLOW] = preceding["horizontal_airflow"]
         command = str(preceding.get("observed_command") or "")
         request = str(preceding.get("fan_request") or "")
         fan_map = {
@@ -251,7 +257,7 @@ class IRSignalHub:
             self._normalize_tcl_test_state(key, value)
         self.hass.config_entries.async_update_entry(
             self.entry,
-            options={**self.entry.options, key: value},
+            options={**self.entry.options, **self.tcl_test_state},
         )
         self._cancel_validation_timeout()
         self._validation_expected = None
@@ -296,6 +302,8 @@ class IRSignalHub:
                 self.tcl_test_state[TCL_TEST_SWING_HORIZONTAL]
             ),
             "auxiliary_heat": bool(self.tcl_test_state[TCL_TEST_AUXILIARY_HEAT]),
+            "vertical_airflow": str(self.tcl_test_state[TCL_VERTICAL_AIRFLOW]),
+            "horizontal_airflow": str(self.tcl_test_state[TCL_HORIZONTAL_AIRFLOW]),
         }
 
     @callback
@@ -412,6 +420,8 @@ class IRSignalHub:
             "horizontal_swing_request": special_fields.get(
                 "horizontal_swing_request"
             ),
+            "vertical_airflow": special_fields.get("vertical_airflow"),
+            "horizontal_airflow": special_fields.get("horizontal_airflow"),
         }
         fields["pair_interval_ms"] = interval_ms
         fields["configured_pair_delay_ms"] = self.tcl_pair_delay_ms

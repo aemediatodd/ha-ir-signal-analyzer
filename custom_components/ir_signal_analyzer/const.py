@@ -31,6 +31,8 @@ TCL_TEST_SOFT_WIND = "tcl_test_soft_wind"
 TCL_TEST_SWING_VERTICAL = "tcl_test_swing_vertical"
 TCL_TEST_SWING_HORIZONTAL = "tcl_test_swing_horizontal"
 TCL_TEST_AUXILIARY_HEAT = "tcl_test_auxiliary_heat"
+TCL_VERTICAL_AIRFLOW = "tcl_vertical_airflow"
+TCL_HORIZONTAL_AIRFLOW = "tcl_horizontal_airflow"
 TCL_TEST_REMOTE_PROFILE = "tcl_test_remote_profile"
 TCL_REMOTE_PROFILE_TCL_ADVANCED = "TCL-高级"
 TCL_TEST_MODE_OPTIONS = ["auto", "cool", "heat", "dry", "fan_only"]
@@ -45,8 +47,12 @@ TCL_TEST_DEFAULTS = {
     TCL_TEST_SWING_VERTICAL: False,
     TCL_TEST_SWING_HORIZONTAL: False,
     TCL_TEST_AUXILIARY_HEAT: False,
+    TCL_VERTICAL_AIRFLOW: "off",
+    TCL_HORIZONTAL_AIRFLOW: "off",
     TCL_TEST_REMOTE_PROFILE: TCL_REMOTE_PROFILE_TCL_ADVANCED,
 }
+TCL_VERTICAL_OPTIONS = ["off", "highest", "high", "middle", "low", "lowest", "upper_center_swing", "full_swing", "lower_center_swing"]
+TCL_HORIZONTAL_OPTIONS = ["off", "far_left", "left", "center", "right", "far_right", "left_center_swing", "center_swing", "right_center_swing", "full_swing"]
 TCL_TEST_TRANSMITTER_ACTION = "esphome.xiao_ir_transmitter_send_raw_pair"
 TCL_VALIDATION_TIMEOUT_SECONDS = 30
 

@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import IRSignalHub
-from .const import DOMAIN, TCL_TEST_AUXILIARY_HEAT, TCL_TEST_FAN_STEP, TCL_TEST_MODE, TCL_TEST_POWER, TCL_TEST_SLEEP, TCL_TEST_SOFT_WIND, TCL_TEST_SWING_HORIZONTAL, TCL_TEST_SWING_VERTICAL, TCL_TEST_TEMPERATURE
+from .const import DOMAIN, TCL_HORIZONTAL_AIRFLOW, TCL_VERTICAL_AIRFLOW, TCL_TEST_AUXILIARY_HEAT, TCL_TEST_FAN_STEP, TCL_TEST_MODE, TCL_TEST_POWER, TCL_TEST_SLEEP, TCL_TEST_SOFT_WIND, TCL_TEST_TEMPERATURE
 from .entity import IRSignalEntity
 
 
@@ -78,13 +78,20 @@ class TCLAdvancedClimate(IRSignalEntity, ClimateEntity):
 
     @property
     def swing_mode(self):
-        vertical = bool(self.hub.tcl_test_state[TCL_TEST_SWING_VERTICAL])
-        horizontal = bool(self.hub.tcl_test_state[TCL_TEST_SWING_HORIZONTAL])
-        return "both" if vertical and horizontal else "vertical" if vertical else "horizontal" if horizontal else "off"
+        vertical = self.hub.tcl_test_state[TCL_VERTICAL_AIRFLOW]
+        horizontal = self.hub.tcl_test_state[TCL_HORIZONTAL_AIRFLOW]
+        reverse = {
+            ("off", "off"): "off", ("highest", "off"): "highest",
+            ("lowest", "off"): "lowest", ("off", "far_left"): "far_left",
+            ("full_swing", "off"): "vertical", ("off", "full_swing"): "horizontal",
+            ("full_swing", "full_swing"): "both", ("highest", "far_left"): "highest_far_left",
+            ("lowest", "far_left"): "lowest_far_left",
+        }
+        return reverse.get((vertical, horizontal), "off")
 
     @property
     def swing_modes(self):
-        return ["off", "vertical", "horizontal", "both"]
+        return ["off", "highest", "lowest", "far_left", "vertical", "horizontal", "both", "highest_far_left", "lowest_far_left"]
 
     @property
     def preset_mode(self):
@@ -128,8 +135,16 @@ class TCLAdvancedClimate(IRSignalEntity, ClimateEntity):
     async def async_set_swing_mode(self, swing_mode) -> None:
         if swing_mode not in self.swing_modes:
             raise ValueError(f"Unsupported swing mode: {swing_mode}")
-        self.hub.set_tcl_test_parameter(TCL_TEST_SWING_VERTICAL, swing_mode in {"vertical", "both"})
-        self.hub.set_tcl_test_parameter(TCL_TEST_SWING_HORIZONTAL, swing_mode in {"horizontal", "both"})
+        mapping = {
+            "off": ("off", "off"), "highest": ("highest", "off"),
+            "lowest": ("lowest", "off"), "far_left": ("off", "far_left"),
+            "vertical": ("full_swing", "off"), "horizontal": ("off", "full_swing"),
+            "both": ("full_swing", "full_swing"), "highest_far_left": ("highest", "far_left"),
+            "lowest_far_left": ("lowest", "far_left"),
+        }
+        vertical, horizontal = mapping[swing_mode]
+        self.hub.set_tcl_test_parameter(TCL_VERTICAL_AIRFLOW, vertical)
+        self.hub.set_tcl_test_parameter(TCL_HORIZONTAL_AIRFLOW, horizontal)
         await self.hub.async_send_current_tcl()
 
     async def async_set_preset_mode(self, preset_mode) -> None:
@@ -137,4 +152,8 @@ class TCLAdvancedClimate(IRSignalEntity, ClimateEntity):
             raise ValueError(f"Unsupported preset: {preset_mode}")
         self.hub.set_tcl_test_parameter(TCL_TEST_SLEEP, preset_mode in {"sleep", "soft_wind_sleep"})
         self.hub.set_tcl_test_parameter(TCL_TEST_SOFT_WIND, preset_mode in {"soft_wind", "soft_wind_sleep"})
+        if preset_mode == "soft_wind":
+            self.hub.set_tcl_test_parameter(TCL_TEST_FAN_STEP, "5")
+        elif preset_mode == "soft_wind_sleep":
+            self.hub.set_tcl_test_parameter(TCL_TEST_FAN_STEP, "auto")
         await self.hub.async_send_current_tcl()

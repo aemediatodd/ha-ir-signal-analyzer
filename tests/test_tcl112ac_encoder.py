@@ -41,12 +41,14 @@ class Tcl112AcEncoderTests(unittest.TestCase):
             ({"mode": "heat", "fan_step": "auto", "sleep": True, "swing_horizontal": True}, "0x23CB260200402090830000000098", "0x23CB2601002401070100000088CA"),
             ({"mode": "heat", "fan_step": "auto", "sleep": True, "swing_vertical": True, "swing_horizontal": True, "auxiliary_heat": True}, "0x23CB2602004020988300000000A0", "0x23CB260100240107390000000882"),
             ({"mode": "heat", "fan_step": "1", "sleep": True, "swing_vertical": True, "swing_horizontal": True, "auxiliary_heat": True}, "0x23CB2602004040988300000000C0", "0x23CB2601002401073A0000000883"),
+            ({"temperature": 23.5, "fan_step": "auto", "sleep": True, "vertical_airflow": "highest", "horizontal_airflow": "far_left"}, "0x23CB260200402011830000000019", "0x23CB26010024030801000000A0E5"),
+            ({"mode": "dry", "temperature": 23.5, "fan_step": "1", "vertical_airflow": "highest", "horizontal_airflow": "left"}, "0x23CB260200404021830000000049", "0x23CB26010024020802000000A0E5"),
         ]
         for options, special_hex, normal_hex in cases:
             with self.subTest(options=options):
-                result = encoder.encode_tcl112ac(
-                    mode=options.pop("mode", "cool"), temperature=24, **options
-                )
+                parameters = {"mode": "cool", "temperature": 24}
+                parameters.update(options)
+                result = encoder.encode_tcl112ac(**parameters)
                 self.assertEqual(result.special_hex, special_hex)
                 self.assertEqual(result.normal_hex, normal_hex)
 
@@ -66,6 +68,36 @@ class Tcl112AcEncoderTests(unittest.TestCase):
                 result = encoder.encode_tcl112ac(fan_step=fan)
                 self.assertEqual(result.special_hex[12:18], special_fields)
                 self.assertEqual(result.normal_hex[18:20], normal_fan)
+
+    def test_observed_airflow_command_nibbles(self):
+        horizontal = {
+            "left": "49", "center": "59", "right": "69", "far_right": "79",
+            "left_center_swing": "89", "center_swing": "99",
+            "right_center_swing": "A9", "full_swing": "B9",
+        }
+        for airflow, checksum in horizontal.items():
+            with self.subTest(horizontal=airflow):
+                result = encoder.encode_tcl112ac(
+                    mode="dry", temperature=23.5, fan_step="1",
+                    vertical_airflow="highest", horizontal_airflow=airflow,
+                )
+                self.assertEqual(result.special_hex[16:18], {
+                    "left":"21", "center":"31", "right":"41", "far_right":"51",
+                    "left_center_swing":"61", "center_swing":"71",
+                    "right_center_swing":"81", "full_swing":"91",
+                }[airflow])
+                self.assertTrue(result.special_hex.endswith(checksum))
+        for airflow, command, checksum in (
+            ("lowest", "95", "BD"),
+            ("lower_center_swing", "97", "BF"),
+            ("full_swing", "98", "C0"),
+        ):
+            result = encoder.encode_tcl112ac(
+                mode="dry", temperature=23.5, fan_step="1",
+                vertical_airflow=airflow, horizontal_airflow="full_swing",
+            )
+            self.assertEqual(result.special_hex[16:18], command)
+            self.assertTrue(result.special_hex.endswith(checksum))
 
     def test_generated_frames_round_trip_through_decoder(self):
         result = encoder.encode_tcl112ac(
@@ -103,6 +135,8 @@ class Tcl112AcEncoderTests(unittest.TestCase):
             encoder.encode_tcl112ac(fan_step=5, soft_wind=True, sleep=True)
         with self.assertRaises(ValueError):
             encoder.encode_tcl112ac(auxiliary_heat=True, mode="cool")
+        with self.assertRaises(ValueError):
+            encoder.encode_tcl112ac(vertical_airflow="invalid")
 
     def test_frame_byte_differences_identifies_frame_and_byte(self):
         differences = encoder.frame_byte_differences(

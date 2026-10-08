@@ -32,6 +32,16 @@ FAN_SPECIAL_PARAMETERS = {
     "5": 0xC0,
     "6": 0xC0,
 }
+HORIZONTAL_AIRFLOW_CODES = {
+    "off": 0x00, "far_left": 0x10, "left": 0x20, "center": 0x30,
+    "right": 0x40, "far_right": 0x50, "left_center_swing": 0x60,
+    "center_swing": 0x70, "right_center_swing": 0x80, "full_swing": 0x90,
+}
+VERTICAL_AIRFLOW_CODES = {
+    "off": 0x00, "highest": 0x01, "high": 0x02, "middle": 0x03,
+    "low": 0x04, "lowest": 0x05, "upper_center_swing": 0x06,
+    "lower_center_swing": 0x07, "full_swing": 0x08,
+}
 
 
 @dataclass(frozen=True)
@@ -93,12 +103,22 @@ def encode_tcl112ac(
     swing_vertical: bool = False,
     swing_horizontal: bool = False,
     auxiliary_heat: bool = False,
+    vertical_airflow: str = "off",
+    horizontal_airflow: str = "off",
 ) -> EncodedTcl112Ac:
     """Generate the observed TCL type-2 command and type-1 state frames."""
     if mode not in MODE_CODES:
         raise ValueError(f"unsupported TCL112AC mode: {mode}")
     if auxiliary_heat and mode != "heat":
         raise ValueError("auxiliary_heat is validated only in heat mode")
+    if vertical_airflow not in VERTICAL_AIRFLOW_CODES:
+        raise ValueError(f"unsupported vertical airflow: {vertical_airflow}")
+    if horizontal_airflow not in HORIZONTAL_AIRFLOW_CODES:
+        raise ValueError(f"unsupported horizontal airflow: {horizontal_airflow}")
+    if swing_vertical and vertical_airflow == "off":
+        vertical_airflow = "full_swing"
+    if swing_horizontal and horizontal_airflow == "off":
+        horizontal_airflow = "full_swing"
     if not 16.0 <= temperature <= 31.0 or (temperature * 2) % 1:
         raise ValueError("temperature must be 16-31 C in 0.5 C steps")
 
@@ -132,10 +152,8 @@ def encode_tcl112ac(
         # Observed auxiliary-heat commands retain the heat fan selector in
         # the type-2 frame: automatic uses 0x20, fan step 1 uses 0x40.
         special[6] = 0x20 if fan == "auto" else 0x40 if fan == "1" else special[6]
-    if swing_vertical:
-        special[7] |= 0x08
-    if swing_horizontal:
-        special[7] |= 0x90
+    special[7] |= VERTICAL_AIRFLOW_CODES[vertical_airflow]
+    special[7] |= HORIZONTAL_AIRFLOW_CODES[horizontal_airflow]
     special[-1] = (sum(special[:-1]) + 0x0F) & 0xFF
 
     # Type 1 contains the complete resulting state.
@@ -154,9 +172,9 @@ def encode_tcl112ac(
     normal[8] = 0x01 if sleep else FAN_NATIVE_CODES[fan]
     if auxiliary_heat and fan == "1":
         normal[8] = 0x02
-    if swing_vertical:
+    if vertical_airflow.endswith("swing"):
         normal[8] |= 0x38
-    if swing_horizontal:
+    if horizontal_airflow.endswith("swing"):
         normal[12] |= 0x08
     if auxiliary_heat:
         normal[12] &= 0x7F

@@ -348,6 +348,16 @@ def _decode_tcl112ac_special(values: list[int]) -> dict[str, Any]:
 
     vertical_swing = bool(values[7] & 0x08)
     horizontal_swing = (values[7] & 0x90) == 0x90
+    vertical_airflow = {
+        0x0: "off", 0x1: "highest", 0x2: "high", 0x3: "middle",
+        0x4: "low", 0x5: "lowest", 0x6: "upper_center_swing",
+        0x7: "lower_center_swing", 0x8: "full_swing",
+    }.get(values[7] & 0x0F, "unknown")
+    horizontal_airflow = {
+        0x00: "off", 0x10: "far_left", 0x20: "left", 0x30: "center",
+        0x40: "right", 0x50: "far_right", 0x60: "left_center_swing",
+        0x70: "center_swing", 0x80: "right_center_swing", 0x90: "full_swing",
+    }.get(values[7] & 0xF0, "unknown")
     parts = [
         (observed_command or f"fan request {fan_request}").replace("_", " ")
     ]
@@ -363,6 +373,8 @@ def _decode_tcl112ac_special(values: list[int]) -> dict[str, Any]:
         "fan_request": fan_request,
         "vertical_swing_request": vertical_swing,
         "horizontal_swing_request": horizontal_swing,
+        "vertical_airflow": vertical_airflow,
+        "horizontal_airflow": horizontal_airflow,
         "summary": "Special command / " + " / ".join(parts),
     }
 

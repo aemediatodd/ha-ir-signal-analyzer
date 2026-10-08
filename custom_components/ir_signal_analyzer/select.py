@@ -18,6 +18,10 @@ from .const import (
     TCL_TEST_MODE_OPTIONS,
     TCL_TEST_REMOTE_PROFILE,
     TCL_REMOTE_PROFILE_TCL_ADVANCED,
+    TCL_VERTICAL_AIRFLOW,
+    TCL_HORIZONTAL_AIRFLOW,
+    TCL_VERTICAL_OPTIONS,
+    TCL_HORIZONTAL_OPTIONS,
 )
 from .entity import IRSignalEntity
 
@@ -34,6 +38,12 @@ async def async_setup_entry(
             TCLTestModeSelect(entry, hub),
             TCLTestFanStepSelect(entry, hub),
             TCLRemoteProfileSelect(entry, hub),
+            TCLAirflowSelect(entry, hub, TCL_HORIZONTAL_AIRFLOW, "tcl_horizontal_fixed", ["off", "far_left", "left", "center", "right", "far_right"], False),
+            TCLAirflowSelect(entry, hub, TCL_HORIZONTAL_AIRFLOW, "tcl_horizontal_swing", ["off", "left_center_swing", "center_swing", "right_center_swing", "full_swing"], False),
+            TCLAirflowSelect(entry, hub, TCL_VERTICAL_AIRFLOW, "tcl_vertical_fixed", ["off", "highest", "high", "middle", "low", "lowest"], False),
+            TCLAirflowSelect(entry, hub, TCL_VERTICAL_AIRFLOW, "tcl_vertical_swing", ["off", "upper_center_swing", "full_swing", "lower_center_swing"], False),
+            TCLAirflowSelect(entry, hub, TCL_HORIZONTAL_AIRFLOW, "tcl_test_horizontal_airflow", TCL_HORIZONTAL_OPTIONS, True),
+            TCLAirflowSelect(entry, hub, TCL_VERTICAL_AIRFLOW, "tcl_test_vertical_airflow", TCL_VERTICAL_OPTIONS, True),
         ]
     )
 
@@ -128,3 +138,27 @@ class TCLRemoteProfileSelect(IRSignalEntity, SelectEntity):
         if option not in self.options:
             raise ValueError(f"Unsupported remote profile: {option}")
         self.hub.set_tcl_test_parameter(TCL_TEST_REMOTE_PROFILE, option)
+
+
+class TCLAirflowSelect(IRSignalEntity, SelectEntity):
+    def __init__(self, entry, hub, parameter_key, translation_key, options, config) -> None:
+        super().__init__(entry, hub)
+        self._parameter_key = parameter_key
+        self._attr_translation_key = translation_key
+        self._attr_options = options
+        self._attr_icon = "mdi:swap-horizontal" if parameter_key == TCL_HORIZONTAL_AIRFLOW else "mdi:swap-vertical"
+        self._attr_entity_category = EntityCategory.CONFIG if config else None
+        self._send_immediately = not config
+        self._attr_unique_id = f"{entry.entry_id}_{translation_key}"
+
+    @property
+    def current_option(self):
+        value = self.hub.tcl_test_state[self._parameter_key]
+        return value if value in self.options else "off"
+
+    async def async_select_option(self, option: str) -> None:
+        if option not in self.options:
+            raise ValueError(f"Unsupported airflow option: {option}")
+        self.hub.set_tcl_test_parameter(self._parameter_key, option)
+        if self._send_immediately:
+            await self.hub.async_send_current_tcl()

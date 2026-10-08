@@ -31,7 +31,13 @@
   },
   "entity": {
     "climate": {
-      "tcl_advanced_climate": { "name": "TCL-高级" }
+      "tcl_advanced_climate": {
+        "name": "TCL-高级",
+        "state_attributes": {
+          "preset_mode": {"state":{"none":"无","sleep":"睡眠","soft_wind":"柔风","soft_wind_sleep":"睡眠柔风"}},
+          "swing_mode": {"state":{"off":"关闭","highest":"最高","lowest":"最低","far_left":"最左","vertical":"垂直","horizontal":"水平","both":"同时","highest_far_left":"最高最左","lowest_far_left":"最低最左"}}
+        }
+      }
     },
     "sensor": {
       "last_received": { "name": "最近接收" },
@@ -73,7 +79,7 @@
           "cool": "制冷",
           "heat": "制热",
           "dry": "除湿",
-          "fan_only": "送风"
+          "fan_only": "吹风"
         }
       },
       "tcl_test_fan_step": {
@@ -92,7 +98,13 @@
       ,"tcl_test_remote_profile": {
         "name": "TCL 遥控器",
         "state": { "TCL-高级": "TCL-高级" }
-      }
+      },
+      "tcl_horizontal_fixed": {"name":"TCL-高级 左右固定","state":{"off":"关闭","far_left":"最左","left":"左","center":"中","right":"右","far_right":"最右"}},
+      "tcl_horizontal_swing": {"name":"TCL-高级 左右摆风","state":{"off":"关闭","left_center_swing":"左中摆风","center_swing":"中摆风","right_center_swing":"右中摆风","full_swing":"左右摆风"}},
+      "tcl_vertical_fixed": {"name":"TCL-高级 上下固定","state":{"off":"关闭","highest":"最高","high":"高","middle":"中","low":"低","lowest":"最低"}},
+      "tcl_vertical_swing": {"name":"TCL-高级 上下摆风","state":{"off":"关闭","upper_center_swing":"上中摆风","full_swing":"上下摆风","lower_center_swing":"下中摆风"}},
+      "tcl_test_horizontal_airflow": {"name":"TCL 测试左右风","state":{"off":"关闭","far_left":"最左","left":"左","center":"中","right":"右","far_right":"最右","left_center_swing":"左中摆风","center_swing":"中摆风","right_center_swing":"右中摆风","full_swing":"左右摆风"}},
+      "tcl_test_vertical_airflow": {"name":"TCL 测试上下风","state":{"off":"关闭","highest":"最高","high":"高","middle":"中","low":"低","lowest":"最低","upper_center_swing":"上中摆风","full_swing":"上下摆风","lower_center_swing":"下中摆风"}}
     },
     "button": {
       "refresh_irdb_snapshot": { "name": "更新 IRDB 快照" },
