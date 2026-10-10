@@ -69,7 +69,6 @@ class IRDecoderSelect(IRSignalEntity, SelectEntity):
 
 class TCLTestModeSelect(IRSignalEntity, SelectEntity):
     _attr_translation_key = "tcl_test_mode"
-    _attr_icon = "mdi:air-conditioner"
     _attr_entity_category = EntityCategory.CONFIG
     _attr_options = TCL_TEST_MODE_OPTIONS
 
@@ -89,7 +88,6 @@ class TCLTestModeSelect(IRSignalEntity, SelectEntity):
 
 class TCLTestFanStepSelect(IRSignalEntity, SelectEntity):
     _attr_translation_key = "tcl_test_fan_step"
-    _attr_icon = "mdi:fan"
     _attr_entity_category = EntityCategory.CONFIG
     _attr_options = TCL_TEST_FAN_OPTIONS
 
@@ -146,7 +144,6 @@ class TCLAirflowSelect(IRSignalEntity, SelectEntity):
         self._parameter_key = parameter_key
         self._attr_translation_key = translation_key
         self._attr_options = options
-        self._attr_icon = "mdi:swap-horizontal" if parameter_key == TCL_HORIZONTAL_AIRFLOW else "mdi:swap-vertical"
         self._attr_entity_category = EntityCategory.CONFIG if config else None
         self._send_immediately = not config
         self._attr_unique_id = f"{entry.entry_id}_{translation_key}"

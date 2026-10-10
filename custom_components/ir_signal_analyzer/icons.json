@@ -1,0 +1,136 @@
+{
+  "entity": {
+    "climate": {
+      "tcl_advanced_climate": {
+        "state": {
+          "auto": "mdi:auto-mode"
+        },
+        "state_attributes": {
+          "fan_mode": {
+            "default": "mdi:fan",
+            "state": {
+              "auto": "mdi:fan-auto",
+              "0": "mdi:numeric-0-circle",
+              "1": "mdi:numeric-1-circle",
+              "2": "mdi:numeric-2-circle",
+              "3": "mdi:numeric-3-circle",
+              "4": "mdi:numeric-4-circle",
+              "5": "mdi:numeric-5-circle",
+              "6": "mdi:numeric-6-circle"
+            }
+          },
+          "preset_mode": {
+            "default": "mdi:tune-variant",
+            "state": {
+              "none": "mdi:cancel",
+              "sleep": "mdi:sleep",
+              "soft_wind": "mdi:fan-chevron-down",
+              "soft_wind_sleep": "mdi:power-sleep"
+            }
+          }
+        }
+      }
+    },
+    "select": {
+      "tcl_test_mode": {
+        "default": "mdi:air-conditioner",
+        "state": {
+          "auto": "mdi:thermostat-auto",
+          "cool": "mdi:snowflake",
+          "heat": "mdi:fire",
+          "dry": "mdi:water-percent",
+          "fan_only": "mdi:fan"
+        }
+      },
+      "tcl_test_fan_step": {
+        "default": "mdi:fan",
+        "state": {
+          "auto": "mdi:fan-auto",
+          "0": "mdi:fan-off",
+          "1": "mdi:fan-speed-1",
+          "2": "mdi:fan-speed-1",
+          "3": "mdi:fan-speed-2",
+          "4": "mdi:fan-speed-2",
+          "5": "mdi:fan-speed-3",
+          "6": "mdi:weather-windy"
+        }
+      },
+      "tcl_horizontal_fixed": {
+        "default": "mdi:arrow-left-right",
+        "state": {
+          "off": "mdi:cancel",
+          "far_left": "mdi:arrow-left-bold",
+          "left": "mdi:arrow-left",
+          "center": "mdi:circle-small",
+          "right": "mdi:arrow-right",
+          "far_right": "mdi:arrow-right-bold"
+        }
+      },
+      "tcl_horizontal_swing": {
+        "default": "mdi:swap-horizontal",
+        "state": {
+          "off": "mdi:cancel",
+          "left_center_swing": "mdi:arrow-expand-left",
+          "center_swing": "mdi:swap-horizontal",
+          "right_center_swing": "mdi:arrow-expand-right",
+          "full_swing": "mdi:arrow-expand-horizontal"
+        }
+      },
+      "tcl_vertical_fixed": {
+        "default": "mdi:arrow-up-down",
+        "state": {
+          "off": "mdi:cancel",
+          "highest": "mdi:arrow-up-bold",
+          "high": "mdi:arrow-up",
+          "middle": "mdi:circle-small",
+          "low": "mdi:arrow-down",
+          "lowest": "mdi:arrow-down-bold"
+        }
+      },
+      "tcl_vertical_swing": {
+        "default": "mdi:swap-vertical",
+        "state": {
+          "off": "mdi:cancel",
+          "upper_center_swing": "mdi:arrow-expand-up",
+          "full_swing": "mdi:arrow-expand-vertical",
+          "lower_center_swing": "mdi:arrow-expand-down"
+        }
+      },
+      "tcl_test_horizontal_airflow": {
+        "default": "mdi:swap-horizontal",
+        "state": {
+          "off": "mdi:cancel",
+          "far_left": "mdi:arrow-left-bold",
+          "left": "mdi:arrow-left",
+          "center": "mdi:circle-small",
+          "right": "mdi:arrow-right",
+          "far_right": "mdi:arrow-right-bold",
+          "left_center_swing": "mdi:arrow-expand-left",
+          "center_swing": "mdi:swap-horizontal",
+          "right_center_swing": "mdi:arrow-expand-right",
+          "full_swing": "mdi:arrow-expand-horizontal"
+        }
+      },
+      "tcl_test_vertical_airflow": {
+        "default": "mdi:swap-vertical",
+        "state": {
+          "off": "mdi:cancel",
+          "highest": "mdi:arrow-up-bold",
+          "high": "mdi:arrow-up",
+          "middle": "mdi:circle-small",
+          "low": "mdi:arrow-down",
+          "lowest": "mdi:arrow-down-bold",
+          "upper_center_swing": "mdi:arrow-expand-up",
+          "full_swing": "mdi:arrow-expand-vertical",
+          "lower_center_swing": "mdi:arrow-expand-down"
+        }
+      }
+    },
+    "button": {
+      "tcl_auxiliary_heat": { "default": "mdi:radiator" },
+      "tcl_capture_validation": { "default": "mdi:remote" },
+      "tcl_send_generated_test": { "default": "mdi:send" },
+      "tcl_export_validated": { "default": "mdi:export" }
+    }
+  }
+}

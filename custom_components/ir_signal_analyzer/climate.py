@@ -30,7 +30,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
 class TCLAdvancedClimate(IRSignalEntity, ClimateEntity):
     _attr_translation_key = "tcl_advanced_climate"
-    _attr_icon = "mdi:air-conditioner"
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_min_temp = 16
     _attr_max_temp = 31

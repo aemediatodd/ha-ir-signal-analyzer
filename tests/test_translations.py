@@ -49,6 +49,22 @@ class TranslationTests(unittest.TestCase):
         self.assertEqual(english["entity"]["number"][key]["name"], "Remote 2-frame interval")
         self.assertEqual(chinese["entity"]["number"][key]["name"], "发送2帧间隔")
 
+    def test_climate_card_options_have_icons(self):
+        icons = load_json(INTEGRATION_PATH / "icons.json")
+        climate = icons["entity"]["climate"]["tcl_advanced_climate"]
+        strings = load_json(INTEGRATION_PATH / "strings.json")
+        translated = strings["entity"]["climate"]["tcl_advanced_climate"]
+        self.assertEqual(
+            set(climate["state_attributes"]["preset_mode"]["state"]),
+            set(translated["state_attributes"]["preset_mode"]["state"]),
+        )
+        self.assertNotIn("swing_mode", climate["state_attributes"])
+        self.assertEqual(climate["state"], {"auto": "mdi:auto-mode"})
+        self.assertEqual(
+            set(climate["state_attributes"]["fan_mode"]["state"]),
+            {"auto", "0", "1", "2", "3", "4", "5", "6"},
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
